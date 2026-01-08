@@ -1,0 +1,90 @@
+package io.hansu.pacer.domain.activity.repository
+
+import io.hansu.pacer.domain.activity.ActivityEntity
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+
+interface ActivityJpaRepository : JpaRepository<ActivityEntity, Long> {
+
+    fun findBySourceAndSourceActivityId(source: String, sourceActivityId: Long): ActivityEntity?
+
+    @Modifying
+    @Query("update ActivityEntity a set a.avgPaceSecPerKm = :avgPace where a.id = :id")
+    fun updateAvgPace(@Param("id") id: Long, @Param("avgPace") avgPace: Int): Int
+}
+
+@Repository
+class ActivityRepository(
+    private val jpa: ActivityJpaRepository,
+    private val jdbc: NamedParameterJdbcTemplate
+) {
+    fun findByIdOrThrow(id: Long): ActivityEntity =
+        jpa.findById(id).orElseThrow { IllegalArgumentException("activity not found: $id") }
+
+    @Transactional
+    fun upsertBySourceId(
+        userId: Long,
+        source: String,
+        sourceActivityId: Long,
+        startTimeUtc: LocalDateTime,
+        timezone: String?,
+        distanceM: Int,
+        movingTimeS: Int,
+        elapsedTimeS: Int,
+        avgHr: Int?,
+        maxHr: Int?,
+        elevationGainM: Int?
+    ): ActivityEntity {
+
+        // 1) upsert (유니크키: source + source_activity_id)
+        val sql = """
+            insert into activities
+            (user_id, source, source_activity_id, sport_type, start_time_utc, timezone,
+             distance_m, moving_time_s, elapsed_time_s, avg_hr, max_hr, elevation_gain_m)
+            values
+            (:userId, :source, :sourceActivityId, 'RUN', :startTimeUtc, :timezone,
+             :distanceM, :movingTimeS, :elapsedTimeS, :avgHr, :maxHr, :elevationGainM)
+            on duplicate key update
+              user_id = values(user_id),
+              start_time_utc = values(start_time_utc),
+              timezone = values(timezone),
+              distance_m = values(distance_m),
+              moving_time_s = values(moving_time_s),
+              elapsed_time_s = values(elapsed_time_s),
+              avg_hr = values(avg_hr),
+              max_hr = values(max_hr),
+              elevation_gain_m = values(elevation_gain_m),
+              updated_at = current_timestamp
+        """.trimIndent()
+
+        val params = mapOf(
+            "userId" to userId,
+            "source" to source,
+            "sourceActivityId" to sourceActivityId,
+            "startTimeUtc" to startTimeUtc,
+            "timezone" to timezone,
+            "distanceM" to distanceM,
+            "movingTimeS" to movingTimeS,
+            "elapsedTimeS" to elapsedTimeS,
+            "avgHr" to avgHr,
+            "maxHr" to maxHr,
+            "elevationGainM" to elevationGainM
+        )
+        jdbc.update(sql, params)
+
+        // 2) 다시 조회해서 entity 반환
+        return jpa.findBySourceAndSourceActivityId(source, sourceActivityId)
+            ?: throw IllegalStateException("upsert failed for activity source=$source id=$sourceActivityId")
+    }
+
+    @Transactional
+    fun updateAvgPace(activityId: Long, avgPace: Int) {
+        jpa.updateAvgPace(activityId, avgPace)
+    }
+}
