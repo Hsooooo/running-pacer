@@ -10,11 +10,11 @@ class RawStravaPayloadRepository(
     fun saveRaw(userId: Long, payloadType: String, sourceActivityId: Long?, payloadJson: String) {
         val sql = """
             insert into raw_strava_payloads
-              (user_id, source, source_activity_id, payload_type, payload_json)
+              (user_id, provider, activity_id, payload_type, payload_json)
             values
               (:userId, 'STRAVA', :sourceActivityId, :payloadType, cast(:payloadJson as json))
             on duplicate key update
-              received_at = current_timestamp
+              created_at = current_timestamp
         """.trimIndent()
 
         val params = mapOf(

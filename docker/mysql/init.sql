@@ -7,15 +7,15 @@ create table users (
 
 -- Strava 원본 payload 저장(멱등/디버깅/리플레이)
 create table raw_strava_payloads (
-  raw_id bigint primary key auto_increment,
+  payload_id bigint primary key auto_increment,
   user_id bigint not null,
-  source varchar(20) not null default 'STRAVA',
-  source_activity_id bigint null,
+  provider varchar(20) not null default 'STRAVA',
+  activity_id bigint null,
   payload_type varchar(30) not null, -- 'activity', 'streams', 'webhook_event'
   payload_json json not null,
-  received_at datetime not null default current_timestamp,
-  unique key uk_raw (source, payload_type, source_activity_id),
-  key idx_raw_user_time (user_id, received_at),
+  created_at datetime not null default current_timestamp,
+  key idx_raw_user_created (user_id, created_at),
+  key idx_raw_activity (activity_id),
   constraint fk_raw_user foreign key (user_id) references users(user_id)
 ) engine=InnoDB;
 
@@ -106,4 +106,20 @@ create table daily_stats (
   primary key (user_id, stat_date),
   key idx_stats_user_date (user_id, stat_date),
   constraint fk_stats_user foreign key (user_id) references users(user_id)
+) engine=InnoDB;
+
+create table strava_tokens (
+  user_id bigint primary key,
+  athlete_id bigint null,
+
+  access_token varchar(255) not null,
+  refresh_token varchar(255) not null,
+  expires_at bigint not null, -- epoch seconds
+
+  scope varchar(255) null,
+
+  created_at datetime not null default current_timestamp,
+  updated_at datetime not null default current_timestamp on update current_timestamp,
+
+  constraint fk_strava_tokens_user foreign key (user_id) references users(user_id)
 ) engine=InnoDB;

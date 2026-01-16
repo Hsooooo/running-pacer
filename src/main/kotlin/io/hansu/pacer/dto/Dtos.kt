@@ -55,3 +55,12 @@ data class AnomalyRun(
 enum class AnomalyType {
     HIGH_HR_LOW_PACE
 }
+
+data class StravaTokenResponse(
+    val token_type: String,
+    val access_token: String,
+    val refresh_token: String,
+    val expires_at: Long,
+    val expires_in: Long,
+    val athlete: Map<String, Any>? = null
+)

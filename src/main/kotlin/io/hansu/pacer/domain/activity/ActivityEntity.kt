@@ -1,7 +1,6 @@
 package io.hansu.pacer.domain.activity
 
 import jakarta.persistence.*
-import lombok.NoArgsConstructor
 import java.time.LocalDateTime
 
 @Entity
@@ -13,7 +12,6 @@ import java.time.LocalDateTime
         Index(name = "idx_activity_user_dist", columnList = "user_id,distance_m")
     ]
 )
-@NoArgsConstructor
 class ActivityEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "activity_id")

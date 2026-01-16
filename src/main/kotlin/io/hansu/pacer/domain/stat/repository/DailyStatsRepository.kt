@@ -55,7 +55,7 @@ class DailyStatsRepository(
             "statDate" to statDate,
             "addDistanceM" to addDistanceM,
             "addMovingTimeS" to addMovingTimeS,
-            "addAvgPace" to addAvgPaceSecPerKm,
+            "addAvgPace" to (addAvgPaceSecPerKm ?: 0),
             "addAvgHr" to addAvgHr
         )
         jdbc.update(sql, params)

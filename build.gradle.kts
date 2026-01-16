@@ -18,17 +18,25 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.projectlombok:lombok:1.18.30")
-    implementation("dev.langchain4j:langchain4j:1.10.0")
+    implementation("org.springframework.experimental:mcp:0.7.0-SNAPSHOT")
+    implementation("org.springframework.experimental:mcp-webmvc-sse-transport:0.7.0-SNAPSHOT")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    runtimeOnly("com.mysql:mysql-connector-j")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-mysql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -40,4 +48,9 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks {
+    jar { enabled = false }
+    bootJar { enabled = true }
 }

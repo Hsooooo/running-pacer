@@ -7,7 +7,6 @@ import io.hansu.pacer.dto.PeriodComparison
 import io.hansu.pacer.dto.PeriodSummary
 import io.hansu.pacer.dto.TrendMetric
 import io.hansu.pacer.dto.TrendPoint
-import io.hansu.pacer.service.RunningQueryService.Companion.DEFAULT_USER_ID
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
 import java.sql.ResultSet
@@ -19,7 +18,7 @@ class RunningQueryService(
     private val jdbc: NamedParameterJdbcTemplate
 ) {
 
-    fun listActivities(from: LocalDate, to: LocalDate, limit: Int = 30): List<ActivitySummary> {
+    fun listActivities(userId: Long, from: LocalDate, to: LocalDate, limit: Int = 30): List<ActivitySummary> {
         // [from, to] inclusive
         val sql = """
             select
@@ -39,7 +38,7 @@ class RunningQueryService(
         """.trimIndent()
 
         val params = mapOf(
-            "userId" to DEFAULT_USER_ID,
+            "userId" to userId,
             "fromDt" to from.atStartOfDay(),
             "toDtExclusive" to to.plusDays(1).atStartOfDay(),
             "limit" to limit
@@ -48,7 +47,7 @@ class RunningQueryService(
         return jdbc.query(sql, params) { rs, _ -> rs.toActivitySummary() }
     }
 
-    fun getPeriodSummary(from: LocalDate, to: LocalDate): PeriodSummary {
+    fun getPeriodSummary(userId: Long, from: LocalDate, to: LocalDate): PeriodSummary {
         // daily_stats는 이미 증분 집계되어 있으므로 이걸 우선 사용
         val sql = """
             select
@@ -71,7 +70,7 @@ class RunningQueryService(
         """.trimIndent()
 
         val params = mapOf(
-            "userId" to DEFAULT_USER_ID,
+            "userId" to userId,
             "fromDate" to from,
             "toDate" to to
         )
@@ -89,9 +88,9 @@ class RunningQueryService(
         } ?: PeriodSummary(from, to, 0, 0, 0, null, null)
     }
 
-    fun comparePeriods(aFrom: LocalDate, aTo: LocalDate, bFrom: LocalDate, bTo: LocalDate): PeriodComparison {
-        val a = getPeriodSummary(aFrom, aTo)
-        val b = getPeriodSummary(bFrom, bTo)
+    fun comparePeriods(userId: Long, aFrom: LocalDate, aTo: LocalDate, bFrom: LocalDate, bTo: LocalDate): PeriodComparison {
+        val a = getPeriodSummary(userId, aFrom, aTo)
+        val b = getPeriodSummary(userId, bFrom, bTo)
 
         fun deltaOrNull(aVal: Int?, bVal: Int?): Int? =
             if (aVal != null && bVal != null) aVal - bVal else null
@@ -108,7 +107,7 @@ class RunningQueryService(
 
 
 
-    fun getTrend(from: LocalDate, to: LocalDate, metric: TrendMetric): List<TrendPoint> {
+    fun getTrend(userId: Long, from: LocalDate, to: LocalDate, metric: TrendMetric): List<TrendPoint> {
         // 주 시작일(월요일 기준): stat_date - WEEKDAY(stat_date)
         val valueExpr = when (metric) {
             TrendMetric.TOTAL_DISTANCE_M -> "sum(total_distance_m)"
@@ -139,7 +138,7 @@ class RunningQueryService(
     """.trimIndent()
 
         val params = mapOf(
-            "userId" to DEFAULT_USER_ID,
+            "userId" to userId,
             "fromDate" to from,
             "toDate" to to
         )
@@ -152,7 +151,7 @@ class RunningQueryService(
         }
     }
 
-    fun getAnomalyRuns(from: LocalDate, to: LocalDate, type: AnomalyType, limit: Int = 20): List<AnomalyRun> {
+    fun getAnomalyRuns(userId: Long, from: LocalDate, to: LocalDate, type: AnomalyType, limit: Int = 20): List<AnomalyRun> {
         // Phase 1: 가장 “쓸모 있는” 이상치 하나만 먼저
         // HIGH_HR_LOW_PACE: 평균심박 높고, 페이스 느린 러닝(피로/컨디션 저하 후보)
         val (hrThreshold, paceThreshold) = when (type) {
@@ -180,7 +179,7 @@ class RunningQueryService(
     """.trimIndent()
 
         val params = mapOf(
-            "userId" to DEFAULT_USER_ID,
+            "userId" to userId,
             "fromDt" to from.atStartOfDay(),
             "toDtExclusive" to to.plusDays(1).atStartOfDay(),
             "hrTh" to hrThreshold,
@@ -201,13 +200,6 @@ class RunningQueryService(
         }
     }
 
-    /**
-     * Phase 1: 단일 사용자 가정(한수 님)
-     * 나중에 userId를 Tool 파라미터로 받거나 Auth에서 주입
-     */
-    companion object {
-        const val DEFAULT_USER_ID: Long = 1L
-    }
 }
 
 private fun ResultSet.toActivitySummary(): ActivitySummary {

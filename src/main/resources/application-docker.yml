@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+logging:
+  level:
+    org.flywaydb: DEBUG
+    root: INFO
+    io.hansu.pacer: DEBUG
+
+strava:
+  client-id: ${STRAVA_CLIENT_ID}
+  client-secret: ${STRAVA_CLIENT_SECRET}
+  base-url: ${STRAVA_BASE_URL}
+  webhook-verify-token: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info}
+
