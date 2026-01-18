@@ -8,21 +8,28 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: https://running-pacer.p-e.kr/login/oauth2/code/google
 logging:
   level:
     org.flywaydb: DEBUG
     root: INFO
     io.hansu.pacer: DEBUG
 
+
 strava:
   client-id: ${STRAVA_CLIENT_ID}
   client-secret: ${STRAVA_CLIENT_SECRET}
   base-url: "https://www.strava.com"
   webhook-verify-token: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
+  redirect-uri: https://running-pacer.p-e.kr/oauth/strava/callback
 
 management:
   endpoints:
     web:
       exposure:
         include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info}
-
