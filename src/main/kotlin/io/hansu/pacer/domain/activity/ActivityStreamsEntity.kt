@@ -1,6 +1,8 @@
 package io.hansu.pacer.domain.activity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.LocalDateTime
 
 @Entity
@@ -14,6 +16,7 @@ class ActivityStreamsEntity(
     val userId: Long,
 
     @Column(name = "streams_json", columnDefinition = "jsonb", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     val streamsJson: String,
 
     @Column(name = "stream_keys", nullable = false, length = 255)

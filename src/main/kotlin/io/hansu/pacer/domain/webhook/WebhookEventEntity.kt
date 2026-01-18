@@ -1,6 +1,8 @@
 package io.hansu.pacer.domain.webhook
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(
@@ -31,6 +33,7 @@ class WebhookEventEntity(
     val eventTime: Long,
 
     @Column(name = "event_json", columnDefinition = "jsonb", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     val eventJson: String,
 
     @Column(name = "created_at", nullable = false)
