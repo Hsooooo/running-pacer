@@ -5,9 +5,13 @@ import io.hansu.pacer.domain.job.repository.IngestJobRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -41,13 +45,13 @@ class DbJobProducerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(listOf(existingJob))
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        org.mockito.Mockito.verify(jobRepo).findAll()
-        org.mockito.Mockito.verify(jobRepo, org.mockito.Mockito.never()).save(org.mockito.Mockito.any())
+        verify(jobRepo).findAll()
+        verify(jobRepo, never()).save(any())
     }
 
     @Test
@@ -62,12 +66,12 @@ class DbJobProducerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(listOf(existingJob))
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        org.mockito.Mockito.verify(jobRepo, org.mockito.Mockito.never()).save(org.mockito.Mockito.any())
+        verify(jobRepo, never()).save(any())
     }
 
     @Test
@@ -82,12 +86,12 @@ class DbJobProducerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(listOf(existingJob))
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        org.mockito.Mockito.verify(jobRepo, org.mockito.Mockito.never()).save(org.mockito.Mockito.any())
+        verify(jobRepo, never()).save(any())
     }
 
     @Test
@@ -102,37 +106,37 @@ class DbJobProducerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(listOf(existingJob))
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        org.mockito.Mockito.verify(jobRepo).save(org.mockito.Mockito.any())
+        verify(jobRepo).save(any())
     }
 
     @Test
     fun `동일한 job이 없으면 새로 저장한다`() {
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(emptyList())
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        org.mockito.Mockito.verify(jobRepo).save(org.mockito.Mockito.any())
+        verify(jobRepo).save(any())
     }
 
     // job 저장 값 검증 테스트
 
     @Test
     fun `새로 저장된 job에 올바른 값이 설정된다`() {
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(emptyList())
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        val jobCaptor = ArgumentCaptor.forClass(IngestJobEntity::class.java)
-        org.mockito.Mockito.verify(jobRepo).save(jobCaptor.capture())
+        val jobCaptor = argumentCaptor<IngestJobEntity>()
+        verify(jobRepo).save(jobCaptor.capture())
 
-        val savedJob = jobCaptor.value
+        val savedJob = jobCaptor.firstValue
         assertNotNull(savedJob)
         assertEquals(IngestJobEntity.PROVIDER_STRAVA, savedJob.provider)
         assertEquals(activityId, savedJob.providerRefId)
@@ -146,13 +150,13 @@ class DbJobProducerTest {
 
     @Test
     fun `서로 다른 provider의 job은 별도로 저장된다`() {
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(emptyList())
 
         val otherActivityId = 99999L
         dbJobProducer.enqueueActivityIngestJob(userId, otherActivityId)
 
-        org.mockito.Mockito.verify(jobRepo).save(org.mockito.Mockito.any())
+        verify(jobRepo).save(any())
     }
 
     @Test
@@ -167,11 +171,11 @@ class DbJobProducerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.findAll())
+        whenever(jobRepo.findAll())
             .thenReturn(listOf(otherTypeJob))
 
         dbJobProducer.enqueueActivityIngestJob(userId, activityId)
 
-        org.mockito.Mockito.verify(jobRepo).save(org.mockito.Mockito.any())
+        verify(jobRepo).save(any())
     }
 }

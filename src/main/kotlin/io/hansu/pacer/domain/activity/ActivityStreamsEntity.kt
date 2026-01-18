@@ -13,7 +13,7 @@ class ActivityStreamsEntity(
     @Column(name = "user_id", nullable = false)
     val userId: Long,
 
-    @Column(name = "streams_json", columnDefinition = "json", nullable = false)
+    @Column(name = "streams_json", columnDefinition = "jsonb", nullable = false)
     val streamsJson: String,
 
     @Column(name = "stream_keys", nullable = false, length = 255)

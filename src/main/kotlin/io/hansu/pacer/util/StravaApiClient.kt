@@ -14,18 +14,20 @@ class StravaApiClient(
     private val auth: StravaAuthService
 ) {
     private val om = jacksonObjectMapper()
-    fun getActivity(activityId: Long): JsonNode =
-        get("/activities/$activityId")
 
-    fun getActivityLaps(activityId: Long): JsonNode =
-        get("/activities/$activityId/laps")
+    fun getActivity(userId: Long, activityId: Long): JsonNode =
+        get(userId, "/activities/$activityId")
 
-    fun getActivityStreams(activityId: Long, keys: List<String>): JsonNode {
+    fun getActivityLaps(userId: Long, activityId: Long): JsonNode =
+        get(userId, "/activities/$activityId/laps")
+
+    fun getActivityStreams(userId: Long, activityId: Long, keys: List<String>): JsonNode {
         val keyParam = keys.joinToString(",")
-        return get("/activities/$activityId/streams?keys=$keyParam&key_by_type=true")
+        return get(userId, "/activities/$activityId/streams?keys=$keyParam&key_by_type=true")
     }
 
     fun getAthleteActivities(
+        userId: Long,
         after: Long? = null,
         before: Long? = null,
         page: Int = 1,
@@ -34,11 +36,11 @@ class StravaApiClient(
         val sb = StringBuilder("/athlete/activities?page=$page&per_page=$perPage")
         if (after != null) sb.append("&after=$after")
         if (before != null) sb.append("&before=$before")
-        return get(sb.toString())
+        return get(userId, sb.toString())
     }
 
-    private fun get(path: String): JsonNode {
-        val token = auth.getValidAccessToken()
+    private fun get(userId: Long, path: String): JsonNode {
+        val token = auth.getValidAccessToken(userId)
         val body = restClient.get()
             .uri("${props.apiBaseUrl}$path")
             .header("Authorization", "Bearer $token")

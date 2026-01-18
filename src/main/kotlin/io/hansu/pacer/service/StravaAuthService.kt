@@ -4,9 +4,8 @@ import io.hansu.pacer.config.StravaProps
 import io.hansu.pacer.domain.strava.StravaUserLinksEntity
 import io.hansu.pacer.domain.strava.repository.StravaTokenRepository
 import io.hansu.pacer.domain.strava.repository.StravaUserLinksRepository
-import io.hansu.pacer.domain.user.UserEntity
-import io.hansu.pacer.domain.user.repository.UserRepository
 import io.hansu.pacer.dto.StravaTokenResponse
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
@@ -19,10 +18,11 @@ class StravaAuthService(
     private val restClient: RestClient,
     private val props: StravaProps,
     private val tokenRepo: StravaTokenRepository,
-    private val stravaUserLinksRepo: StravaUserLinksRepository,
-    private val userRepo: UserRepository
+    private val stravaUserLinksRepo: StravaUserLinksRepository
 ) {
-    fun exchangeCodeAndSaveTokens(code: String) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    fun exchangeCodeAndSaveTokens(code: String, targetUserId: Long) {
         val body: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
             add("client_id", props.clientId.toString())
             add("client_secret", props.clientSecret)
@@ -40,21 +40,21 @@ class StravaAuthService(
 
         val athleteId = (res.athlete?.get("id") as? Number)?.toLong() ?: error("Athlete ID not found in Strava response")
 
-        val userId = stravaUserLinksRepo.findByAthleteId(athleteId)?.userId ?: run {
-            val newUser = userRepo.save(UserEntity(nickname = "Strava Athlete $athleteId"))
-            stravaUserLinksRepo.save(
-                StravaUserLinksEntity(
-                    userId = newUser.id,
-                    athleteId = athleteId,
-                    scope = null,
-                    status = "ACTIVE"
-                )
-            )
-            newUser.id
+        val existingLink = stravaUserLinksRepo.findByAthleteId(athleteId)
+        
+        if (existingLink != null) {
+            if (existingLink.userId != targetUserId) {
+                logger.warn("Strava athlete $athleteId was linked to user ${existingLink.userId}, moving to $targetUserId")
+                stravaUserLinksRepo.delete(existingLink)
+                stravaUserLinksRepo.flush()
+                saveNewLink(targetUserId, athleteId)
+            }
+        } else {
+            saveNewLink(targetUserId, athleteId)
         }
 
         tokenRepo.upsert(
-            userId = userId,
+            userId = targetUserId,
             athleteId = athleteId,
             accessToken = res.access_token,
             refreshToken = res.refresh_token,
@@ -63,14 +63,26 @@ class StravaAuthService(
         )
     }
 
-    /** 항상 유효한 access token을 반환 */
-    fun getValidAccessToken(): String {
-        val athleteId = stravaUserLinksRepo.findAll().firstOrNull()?.athleteId
-            ?: error("No Strava user linked. Do OAuth first.")
-        val userId = stravaUserLinksRepo.findByAthleteId(athleteId)?.userId
-            ?: error("User not found for athlete $athleteId")
+    private fun saveNewLink(userId: Long, athleteId: Long) {
+        stravaUserLinksRepo.save(
+            StravaUserLinksEntity(
+                userId = userId,
+                athleteId = athleteId,
+                scope = null,
+                status = "ACTIVE"
+            )
+        )
+    }
 
-        val row = tokenRepo.find(userId) ?: error("Strava token not found. Do OAuth first.")
+    fun getValidAccessToken(userId: Long): String {
+        val links = stravaUserLinksRepo.findByUserId(userId)
+        if (links.isEmpty()) {
+            error("No Strava account linked for user $userId")
+        }
+        val link = links.first()
+        val athleteId = link.athleteId
+
+        val row = tokenRepo.find(userId) ?: error("Strava token not found for user $userId")
         val now = Instant.now().epochSecond
 
         return if (row.expiresAt <= now + 300) {

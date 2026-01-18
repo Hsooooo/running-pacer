@@ -12,9 +12,7 @@ class RawStravaPayloadRepository(
             insert into raw_strava_payloads
               (user_id, provider, activity_id, payload_type, payload_json)
             values
-              (:userId, 'STRAVA', :sourceActivityId, :payloadType, cast(:payloadJson as json))
-            on duplicate key update
-              created_at = current_timestamp
+              (:userId, 'STRAVA', :sourceActivityId, :payloadType, cast(:payloadJson as jsonb))
         """.trimIndent()
 
         val params = mapOf(

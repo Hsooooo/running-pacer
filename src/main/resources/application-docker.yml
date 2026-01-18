@@ -1,6 +1,6 @@
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -17,7 +17,7 @@ logging:
 strava:
   client-id: ${STRAVA_CLIENT_ID}
   client-secret: ${STRAVA_CLIENT_SECRET}
-  base-url: ${STRAVA_BASE_URL}
+  base-url: "https://www.strava.com"
   webhook-verify-token: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
 
 management:

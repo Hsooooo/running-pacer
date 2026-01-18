@@ -8,9 +8,14 @@ import io.hansu.pacer.util.StravaApiClient
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
 
 @ExtendWith(MockitoExtension::class)
@@ -49,24 +54,24 @@ class IngestJobSchedulerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10)))
+        whenever(jobRepo.claimPendingJobs(any(), eq(10)))
             .thenReturn(listOf(job))
-        org.mockito.Mockito.`when`(stravaApiClient.getActivity(activityId))
+        whenever(stravaApiClient.getActivity(userId, activityId))
             .thenReturn(createMockJsonNode())
-        org.mockito.Mockito.`when`(stravaApiClient.getActivityLaps(activityId))
+        whenever(stravaApiClient.getActivityLaps(userId, activityId))
             .thenReturn(createMockJsonNode())
-        org.mockito.Mockito.`when`(stravaApiClient.getActivityStreams(org.mockito.Mockito.eq(activityId), org.mockito.Mockito.any()))
+        whenever(stravaApiClient.getActivityStreams(eq(userId), eq(activityId), any()))
             .thenReturn(createMockJsonNode())
 
         scheduler.processPendingJobs()
 
-        org.mockito.Mockito.verify(jobRepo).claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10))
-        org.mockito.Mockito.verify(jobRepo).markAsRunning(job.id)
-        org.mockito.Mockito.verify(stravaApiClient).getActivity(activityId)
-        org.mockito.Mockito.verify(stravaApiClient).getActivityLaps(activityId)
-        org.mockito.Mockito.verify(stravaApiClient).getActivityStreams(org.mockito.Mockito.eq(activityId), org.mockito.Mockito.any())
-        org.mockito.Mockito.verify(stravaIngestService).ingest(org.mockito.Mockito.eq(userId), org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any())
-        org.mockito.Mockito.verify(jobRepo).markAsDone(job.id)
+        verify(jobRepo).claimPendingJobs(any(), eq(10))
+        verify(jobRepo).markAsRunning(job.id)
+        verify(stravaApiClient).getActivity(userId, activityId)
+        verify(stravaApiClient).getActivityLaps(userId, activityId)
+        verify(stravaApiClient).getActivityStreams(eq(userId), eq(activityId), any())
+        verify(stravaIngestService).ingest(eq(userId), any(), any(), any())
+        verify(jobRepo).markAsDone(job.id)
     }
 
     // 예외 처리 테스트
@@ -83,15 +88,15 @@ class IngestJobSchedulerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10)))
+        whenever(jobRepo.claimPendingJobs(any(), eq(10)))
             .thenReturn(listOf(job))
-        org.mockito.Mockito.`when`(stravaApiClient.getActivity(activityId))
+        whenever(stravaApiClient.getActivity(userId, activityId))
             .thenThrow(RuntimeException("API 호출 실패"))
 
         scheduler.processPendingJobs()
 
-        org.mockito.Mockito.verify(jobRepo).markAsRunning(job.id)
-        org.mockito.Mockito.verify(jobRepo, org.mockito.Mockito.never()).markAsDone(org.mockito.Mockito.any())
+        verify(jobRepo).markAsRunning(job.id)
+        verify(jobRepo, never()).markAsDone(any())
     }
 
     // 재시도 정책 테스트
@@ -109,19 +114,19 @@ class IngestJobSchedulerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10)))
+        whenever(jobRepo.claimPendingJobs(any(), eq(10)))
             .thenReturn(listOf(job))
-        org.mockito.Mockito.`when`(stravaApiClient.getActivity(activityId))
+        whenever(stravaApiClient.getActivity(userId, activityId))
             .thenThrow(RuntimeException("API 호출 실패"))
 
         scheduler.processPendingJobs()
 
-        org.mockito.Mockito.verify(jobRepo).markAsRunning(job.id)
+        verify(jobRepo).markAsRunning(job.id)
 
-        val nextRunCaptor = ArgumentCaptor.forClass(java.time.LocalDateTime::class.java)
-        org.mockito.Mockito.verify(jobRepo).markAsFailedWithRetry(org.mockito.Mockito.eq(job.id), org.mockito.Mockito.eq("API 호출 실패"), nextRunCaptor.capture())
+        val nextRunCaptor = argumentCaptor<java.time.LocalDateTime>()
+        verify(jobRepo).markAsFailedWithRetry(eq(job.id), eq("API 호출 실패"), nextRunCaptor.capture())
 
-        val nextRunAt = nextRunCaptor.value
+        val nextRunAt = nextRunCaptor.firstValue
         val expectedNextRun = java.time.LocalDateTime.now().plusSeconds(5 * 60L)
         val toleranceSeconds = 5
         val diffSeconds = kotlin.math.abs(java.time.Duration.between(expectedNextRun, nextRunAt).seconds)
@@ -141,15 +146,15 @@ class IngestJobSchedulerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10)))
+        whenever(jobRepo.claimPendingJobs(any(), eq(10)))
             .thenReturn(listOf(job))
-        org.mockito.Mockito.`when`(stravaApiClient.getActivity(activityId))
+        whenever(stravaApiClient.getActivity(userId, activityId))
             .thenThrow(RuntimeException("지속적인 실패"))
 
         scheduler.processPendingJobs()
 
-        org.mockito.Mockito.verify(jobRepo).markAsRunning(job.id)
-        org.mockito.Mockito.verify(jobRepo).markAsFailedPermanently(org.mockito.Mockito.eq(job.id), org.mockito.Mockito.eq("지속적인 실패"))
+        verify(jobRepo).markAsRunning(job.id)
+        verify(jobRepo).markAsFailedPermanently(eq(job.id), eq("지속적인 실패"))
     }
 
     // 지원하지 않는 job 테스트
@@ -166,16 +171,16 @@ class IngestJobSchedulerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10)))
+        whenever(jobRepo.claimPendingJobs(any(), eq(10)))
             .thenReturn(listOf(job))
 
         scheduler.processPendingJobs()
 
-        org.mockito.Mockito.verify(jobRepo).markAsRunning(job.id)
-        org.mockito.Mockito.verify(stravaApiClient, org.mockito.Mockito.never()).getActivity(org.mockito.Mockito.any())
-        org.mockito.Mockito.verify(stravaApiClient, org.mockito.Mockito.never()).getActivityLaps(org.mockito.Mockito.any())
-        org.mockito.Mockito.verify(stravaApiClient, org.mockito.Mockito.never()).getActivityStreams(org.mockito.Mockito.any(), org.mockito.Mockito.any())
-        org.mockito.Mockito.verify(jobRepo).markAsDone(job.id)
+        verify(jobRepo).markAsRunning(job.id)
+        verify(stravaApiClient, never()).getActivity(any(), any())
+        verify(stravaApiClient, never()).getActivityLaps(any(), any())
+        verify(stravaApiClient, never()).getActivityStreams(any(), any(), any())
+        verify(jobRepo).markAsDone(job.id)
     }
 
     @Test
@@ -190,14 +195,14 @@ class IngestJobSchedulerTest {
             nextRunAt = java.time.LocalDateTime.now()
         )
 
-        org.mockito.Mockito.`when`(jobRepo.claimPendingJobs(org.mockito.Mockito.any(), org.mockito.Mockito.eq(10)))
+        whenever(jobRepo.claimPendingJobs(any(), eq(10)))
             .thenReturn(listOf(job))
 
         scheduler.processPendingJobs()
 
-        org.mockito.Mockito.verify(jobRepo).markAsRunning(job.id)
-        org.mockito.Mockito.verify(stravaApiClient, org.mockito.Mockito.never()).getActivity(org.mockito.Mockito.any())
-        org.mockito.Mockito.verify(jobRepo).markAsDone(job.id)
+        verify(jobRepo).markAsRunning(job.id)
+        verify(stravaApiClient, never()).getActivity(any(), any())
+        verify(jobRepo).markAsDone(job.id)
     }
 
     private fun createMockJsonNode(): JsonNode {

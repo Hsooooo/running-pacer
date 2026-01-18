@@ -14,5 +14,14 @@ class UserEntity(
     val nickname: String,
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(name = "email", unique = true)
+    val email: String? = null,
+
+    @Column(name = "provider", length = 20)
+    val provider: String? = null,
+
+    @Column(name = "provider_id")
+    val providerId: String? = null
 )

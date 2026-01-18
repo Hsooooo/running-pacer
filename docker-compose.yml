@@ -1,23 +1,19 @@
 version: "3.9"
 
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: pacer-mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: pacer-postgres
     environment:
-      MYSQL_DATABASE: pacer
-      MYSQL_USER: pacer
-      MYSQL_PASSWORD: pacer
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_DB: running_pacer
+      POSTGRES_USER: pacer
+      POSTGRES_PASSWORD: pacer
     ports:
-      - "3306:3306"
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_0900_ai_ci
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U pacer -d running_pacer"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -26,16 +22,21 @@ services:
     build: .
     container_name: pacer-api
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pacer?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/running_pacer
       SPRING_DATASOURCE_USERNAME: pacer
       SPRING_DATASOURCE_PASSWORD: pacer
+      STRAVA_CLIENT_ID: ${STRAVA_CLIENT_ID}
+      STRAVA_CLIENT_SECRET: ${STRAVA_CLIENT_SECRET}
+      STRAVA_WEBHOOK_VERIFY_TOKEN: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy-google-client-id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy-google-client-secret}
     restart: unless-stopped
 
 volumes:
-  mysql_data:
+  postgres_data:

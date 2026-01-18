@@ -48,9 +48,10 @@ class IngestJobScheduler(
     private fun processStravaActivityJob(job: IngestJobEntity) {
         val userId = job.userId ?: error("User ID is required for job processing")
 
-        val activityJson = stravaApiClient.getActivity(job.providerRefId)
-        val lapsJson = stravaApiClient.getActivityLaps(job.providerRefId)
+        val activityJson = stravaApiClient.getActivity(userId, job.providerRefId)
+        val lapsJson = stravaApiClient.getActivityLaps(userId, job.providerRefId)
         val streamsJson = stravaApiClient.getActivityStreams(
+            userId,
             job.providerRefId,
             listOf("time", "distance", "latlng", "altitude", "velocity_smooth", "heartrate", "cadence")
         )

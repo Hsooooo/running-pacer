@@ -26,7 +26,9 @@
 - **Tool Architecture**: Deprecated and removed dispersed tools (`RunningMcpTools.kt`) in favor of unified `RunningQueryTool` and `RunningInsightTool`.
 - **Query Service**: `RunningQueryService` updated to support `userId` scoping.
 - **Dependencies**: Added `jackson-datatype-jsr310` for proper LocalDate serialization.
+- **Null Safety**: Enhanced `RunningToolService` to handle missing parameters with sensible defaults (e.g., last 30 days for performance analysis).
 
 ## Testing
 - Validated MCP SSE endpoint (`/sse`) connectivity via curl.
 - Confirmed JSON serialization of new DTOs.
+- Verified robust parameter handling for MCP tool calls.

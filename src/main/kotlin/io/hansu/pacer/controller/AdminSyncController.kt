@@ -4,6 +4,8 @@ import io.hansu.pacer.domain.strava.repository.StravaUserLinksRepository
 import io.hansu.pacer.service.job.JobProducer
 import io.hansu.pacer.util.StravaApiClient
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -21,12 +23,17 @@ class AdminSyncController(
         @RequestParam(required = false) after: Long?,
         @RequestParam(required = false) before: Long?,
         @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "30") perPage: Int
+        @RequestParam(defaultValue = "30") perPage: Int,
+        @AuthenticationPrincipal principal: OAuth2User?
     ): ResponseEntity<Map<String, Any>> {
-        val link = stravaUserLinksRepo.findAll().firstOrNull() 
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "No linked Strava user found"))
+        val userId = principal?.attributes?.get("userId") as? Long 
+            ?: return ResponseEntity.status(401).body(mapOf("error" to "Unauthorized"))
 
-        val activities = stravaApiClient.getAthleteActivities(after, before, page, perPage)
+        val links = stravaUserLinksRepo.findByUserId(userId)
+        val link = links.firstOrNull()
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "No linked Strava user found for current user"))
+
+        val activities = stravaApiClient.getAthleteActivities(userId, after, before, page, perPage)
         
         if (!activities.isArray) {
             return ResponseEntity.ok(mapOf("enqueuedCount" to 0, "message" to "No activities found or invalid response"))

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Running Pacer - Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 2rem; color: #1d1d1f; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .card { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        h2 { margin-top: 0; }
+        .btn { display: inline-block; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; font-size: 1rem; }
+        .btn-strava { background-color: #FC4C02; color: white; }
+        .btn-strava:hover { background-color: #E34402; }
+        .btn-outline { border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem; font-weight: 500; }
+        .status-connected { background-color: #e8f5e9; color: #2e7d32; }
+        .status-disconnected { background-color: #ffebee; color: #c62828; }
+        code { background: #f5f5f7; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
+        .token-list { list-style: none; padding: 0; }
+        .token-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f7; }
+        .token-val { filter: blur(4px); transition: filter 0.2s; cursor: pointer; }
+        .token-val:hover { filter: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Welcome, <span th:text="${name}">User</span></h1>
+                <p th:text="${email}">user@example.com</p>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline">Logout</button>
+            </form>
+        </div>
+
+        <!-- Strava Connection Status -->
+        <div class="card">
+            <h2>Strava Integration</h2>
+            <div th:if="${isStravaLinked}">
+                <p><span class="status-badge status-connected">Connected</span> Your Strava account is linked.</p>
+                <p>Running Pacer is syncing your activities in the background.</p>
+                <form th:action="@{/admin/sync/activities}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-outline">Sync Recent Activities</button>
+                </form>
+            </div>
+            <div th:unless="${isStravaLinked}">
+                <p><span class="status-badge status-disconnected">Not Connected</span> Connect Strava to start analyzing your runs.</p>
+                <div id="strava-auth-container">
+                    <button onclick="connectStrava()" class="btn btn-strava">Connect with Strava</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Tokens for MCP -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>MCP API Tokens</h2>
+                <button onclick="createToken()" class="btn btn-outline" style="font-size: 0.9rem;">+ New Token</button>
+            </div>
+            <p>Use these tokens to connect Claude Desktop or Cursor to Running Pacer.</p>
+            
+            <ul class="token-list" th:if="${not #lists.isEmpty(tokens)}">
+                <li th:each="token : ${tokens}" class="token-item">
+                    <div>
+                        <strong th:text="${token.name}">Token Name</strong><br>
+                        <small style="color:#86868b" th:text="${#temporals.format(token.createdAt, 'yyyy-MM-dd')}">Date</small>
+                    </div>
+                    <div>
+                        <code class="token-val" th:text="${token.token}">sk-running-...</code>
+                        <button class="btn btn-outline" style="padding: 4px 8px; margin-left: 10px; font-size: 0.8rem;" th:onclick="'deleteToken(' + ${token.id} + ')'">Revoke</button>
+                    </div>
+                </li>
+            </ul>
+            <p th:if="${#lists.isEmpty(tokens)}" style="color: #86868b; font-style: italic;">No tokens generated yet.</p>
+        </div>
+    </div>
+
+    <script>
+        async function connectStrava() {
+            try {
+                const response = await fetch('/oauth/strava/authorize');
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Failed to get authorization URL');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error connecting to Strava');
+            }
+        }
+
+        async function createToken() {
+            const name = prompt("Enter a name for this token (e.g., 'MacBook Air')");
+            if (!name) return;
+
+            try {
+                const response = await fetch('/api/tokens', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name })
+                });
+                
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to create token');
+                }
+            } catch (e) {
+                alert('Error creating token');
+            }
+        }
+
+        async function deleteToken(id) {
+            if (!confirm('Are you sure you want to revoke this token?')) return;
+            
+            try {
+                const response = await fetch('/api/tokens/' + id, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to delete token');
+                }
+            } catch (e) {
+                alert('Error deleting token');
+            }
+        }
+    </script>
+</body>
+</html>

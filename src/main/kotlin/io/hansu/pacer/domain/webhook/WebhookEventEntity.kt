@@ -30,7 +30,7 @@ class WebhookEventEntity(
     @Column(name = "event_time", nullable = false)
     val eventTime: Long,
 
-    @Column(name = "event_json", columnDefinition = "JSON", nullable = false)
+    @Column(name = "event_json", columnDefinition = "jsonb", nullable = false)
     val eventJson: String,
 
     @Column(name = "created_at", nullable = false)

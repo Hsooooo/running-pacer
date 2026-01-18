@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface StravaUserLinksRepository : JpaRepository<StravaUserLinksEntity, Long> {
     fun findByAthleteId(athleteId: Long): StravaUserLinksEntity?
     fun findByUserId(userId: Long): List<StravaUserLinksEntity>
+    fun existsByUserId(userId: Long): Boolean
 }
