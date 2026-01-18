@@ -36,6 +36,7 @@ services:
       STRAVA_WEBHOOK_VERIFY_TOKEN: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy-google-client-id}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy-google-client-secret}
+      APP_BASE_URL: ${APP_BASE_URL}
     restart: unless-stopped
 
 volumes:
