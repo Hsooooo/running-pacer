@@ -21,30 +21,30 @@ class DailyStatsRepository(
               (user_id, stat_date, run_count, total_distance_m, total_moving_time_s, avg_pace_sec_per_km, avg_hr)
             values
               (:userId, :statDate, 1, :addDistanceM, :addMovingTimeS, :addAvgPace, :addAvgHr)
-            on duplicate key update
-              run_count = run_count + 1,
-              total_distance_m = total_distance_m + values(total_distance_m),
-              total_moving_time_s = total_moving_time_s + values(total_moving_time_s),
+            on conflict (user_id, stat_date) do update set
+              run_count = daily_stats.run_count + 1,
+              total_distance_m = daily_stats.total_distance_m + excluded.total_distance_m,
+              total_moving_time_s = daily_stats.total_moving_time_s + excluded.total_moving_time_s,
               avg_pace_sec_per_km = 
                 case
-                  when values(avg_pace_sec_per_km) is null then avg_pace_sec_per_km
-                  when avg_pace_sec_per_km is null then values(avg_pace_sec_per_km)
+                  when excluded.avg_pace_sec_per_km is null then daily_stats.avg_pace_sec_per_km
+                  when daily_stats.avg_pace_sec_per_km is null then excluded.avg_pace_sec_per_km
                   else floor(
                     (
-                      (avg_pace_sec_per_km * total_moving_time_s) +
-                      (values(avg_pace_sec_per_km) * values(total_moving_time_s))
-                    ) / (total_moving_time_s + values(total_moving_time_s))
+                      (daily_stats.avg_pace_sec_per_km * daily_stats.total_moving_time_s) +
+                      (excluded.avg_pace_sec_per_km * excluded.total_moving_time_s)
+                    ) / (daily_stats.total_moving_time_s + excluded.total_moving_time_s)
                   )
                 end,
               avg_hr =
                 case
-                  when values(avg_hr) is null then avg_hr
-                  when avg_hr is null then values(avg_hr)
+                  when excluded.avg_hr is null then daily_stats.avg_hr
+                  when daily_stats.avg_hr is null then excluded.avg_hr
                   else floor(
                     (
-                      (avg_hr * total_moving_time_s) +
-                      (values(avg_hr) * values(total_moving_time_s))
-                    ) / (total_moving_time_s + values(total_moving_time_s))
+                      (daily_stats.avg_hr * daily_stats.total_moving_time_s) +
+                      (excluded.avg_hr * excluded.total_moving_time_s)
+                    ) / (daily_stats.total_moving_time_s + excluded.total_moving_time_s)
                   )
                 end,
               updated_at = current_timestamp

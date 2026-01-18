@@ -18,12 +18,12 @@ class StravaTokenRepository(
         val sql = """
             insert into strava_tokens (user_id, athlete_id, access_token, refresh_token, expires_at, scope)
             values (:userId, :athleteId, :accessToken, :refreshToken, :expiresAt, :scope)
-            on duplicate key update
-              athlete_id = values(athlete_id),
-              access_token = values(access_token),
-              refresh_token = values(refresh_token),
-              expires_at = values(expires_at),
-              scope = values(scope),
+            on conflict (user_id) do update set
+              athlete_id = excluded.athlete_id,
+              access_token = excluded.access_token,
+              refresh_token = excluded.refresh_token,
+              expires_at = excluded.expires_at,
+              scope = excluded.scope,
               updated_at = current_timestamp
         """.trimIndent()
 

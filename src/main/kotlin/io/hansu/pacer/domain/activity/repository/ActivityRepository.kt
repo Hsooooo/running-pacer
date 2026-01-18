@@ -50,16 +50,16 @@ class ActivityRepository(
             values
             (:userId, :source, :sourceActivityId, 'RUN', :startTimeUtc, :timezone,
              :distanceM, :movingTimeS, :elapsedTimeS, :avgHr, :maxHr, :elevationGainM)
-            on duplicate key update
-              user_id = values(user_id),
-              start_time_utc = values(start_time_utc),
-              timezone = values(timezone),
-              distance_m = values(distance_m),
-              moving_time_s = values(moving_time_s),
-              elapsed_time_s = values(elapsed_time_s),
-              avg_hr = values(avg_hr),
-              max_hr = values(max_hr),
-              elevation_gain_m = values(elevation_gain_m),
+            on conflict (source, source_activity_id) do update set
+              user_id = excluded.user_id,
+              start_time_utc = excluded.start_time_utc,
+              timezone = excluded.timezone,
+              distance_m = excluded.distance_m,
+              moving_time_s = excluded.moving_time_s,
+              elapsed_time_s = excluded.elapsed_time_s,
+              avg_hr = excluded.avg_hr,
+              max_hr = excluded.max_hr,
+              elevation_gain_m = excluded.elevation_gain_m,
               updated_at = current_timestamp
         """.trimIndent()
 
