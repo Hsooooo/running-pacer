@@ -41,6 +41,7 @@ This update focuses on stabilizing the build, securing MCP endpoints, and provid
 ### 📝 Configuration Updates
 - **Dependencies**: Added `spring-boot-starter-thymeleaf` and `mockito-kotlin`.
 - **SecurityConfig**: Updated filter chain to apply `ApiTokenFilter` before Username/Password authentication and protect MCP routes.
+- **Strava Config**: Externalized `strava.redirect-uri` to support deployment environments via `STRAVA_REDIRECT_URI` environment variable.
 
 ### ⏭ Next Steps
 - Verify the end-to-end flow with a real Strava account.
