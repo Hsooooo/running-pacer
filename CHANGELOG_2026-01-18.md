@@ -34,6 +34,10 @@ This update focuses on stabilizing the build, securing MCP endpoints, and provid
 #### 3. Repository Extensions
 - **StravaUserLinksRepository**: Added `existsByUserId` method to support dashboard status checks.
 
+#### 4. CI/CD Pipeline
+- **GitHub Actions**: Added `docker-publish.yml` workflow to automatically build and push Docker images to GHCR on master branch push.
+- **Production Compose**: Added `docker-compose-prod.yml` configured to pull pre-built images from GHCR instead of building locally, reducing server resource usage during deployment.
+
 ### 📝 Configuration Updates
 - **Dependencies**: Added `spring-boot-starter-thymeleaf` and `mockito-kotlin`.
 - **SecurityConfig**: Updated filter chain to apply `ApiTokenFilter` before Username/Password authentication and protect MCP routes.
