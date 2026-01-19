@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 class LoginController(
     private val stravaUserLinksRepository: StravaUserLinksRepository,
-    private val apiTokenService: ApiTokenService
+    private val apiTokenService: ApiTokenService,
+    private val runningQueryService: io.hansu.pacer.service.RunningQueryService
 ) {
 
     @GetMapping("/login")
@@ -34,10 +35,16 @@ class LoginController(
         // API 토큰 목록 조회 (없으면 빈 리스트)
         val tokens = apiTokenService.listTokens(userId)
 
+        // 최근 30일 활동 조회 (최대 10개)
+        val toDate = java.time.LocalDate.now()
+        val fromDate = toDate.minusDays(30)
+        val recentActivities = runningQueryService.listActivities(userId, fromDate, toDate, 10)
+
         model.addAttribute("name", principal.attributes["name"])
         model.addAttribute("email", principal.attributes["email"])
         model.addAttribute("isStravaLinked", isStravaLinked)
         model.addAttribute("tokens", tokens)
+        model.addAttribute("recentActivities", recentActivities)
 
         return "home"
     }

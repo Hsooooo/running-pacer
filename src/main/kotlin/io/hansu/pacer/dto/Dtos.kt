@@ -64,3 +64,17 @@ data class StravaTokenResponse(
     val expires_in: Long,
     val athlete: Map<String, Any>? = null
 )
+
+data class ActivityDetail(
+    val activityId: Long,
+    val date: LocalDate,
+    val startTime: String, // HH:mm format
+    val distanceM: Int,
+    val movingTimeS: Int,
+    val elapsedTimeS: Int,
+    val avgPaceSecPerKm: Int?,
+    val avgHr: Int?,
+    val maxHr: Int?,
+    val elevationGainM: Int?,
+    val sportType: String
+)

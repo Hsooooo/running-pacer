@@ -3,133 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <title>Running Pacer - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 2rem; color: #1d1d1f; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .card { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        h2 { margin-top: 0; }
-        .btn { display: inline-block; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; font-size: 1rem; }
-        .btn-strava { background-color: #FC4C02; color: white; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 350px 1fr; gap: 2rem; }
+        
+        .header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        h2 { margin-top: 0; font-size: 1.25rem; }
+        
+        .btn { display: inline-block; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-strava { background-color: #FC4C02; color: white; width: 100%; text-align: center; }
         .btn-strava:hover { background-color: #E34402; }
         .btn-outline { border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; }
-        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem; font-weight: 500; }
+        .btn-outline:hover { background: #f5f5f7; }
+        
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
         .status-connected { background-color: #e8f5e9; color: #2e7d32; }
         .status-disconnected { background-color: #ffebee; color: #c62828; }
-        code { background: #f5f5f7; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
+        
+        code { background: #f5f5f7; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
+        
+        /* Activity List */
+        .activity-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
+        .activity-item { padding: 12px; border-bottom: 1px solid #f5f5f7; cursor: pointer; transition: background 0.2s; border-radius: 8px; }
+        .activity-item:hover { background-color: #f0f0f2; }
+        .activity-item.active { background-color: #e3f2fd; border-color: #bbdefb; }
+        .activity-date { font-size: 0.85rem; color: #86868b; }
+        .activity-title { font-weight: 600; margin: 2px 0; }
+        .activity-stat { font-size: 0.85rem; color: #1d1d1f; }
+
+        /* Detail View */
+        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-box { background: #f9f9fa; padding: 1rem; border-radius: 8px; text-align: center; }
+        .stat-label { font-size: 0.75rem; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+        .stat-unit { font-size: 0.85rem; color: #86868b; font-weight: 400; }
+        
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .empty-state { text-align: center; color: #86868b; padding: 4rem 2rem; }
+
         .token-list { list-style: none; padding: 0; }
-        .token-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f7; }
+        .token-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f7; }
         .token-val { filter: blur(4px); transition: filter 0.2s; cursor: pointer; }
         .token-val:hover { filter: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div>
-                <h1>Welcome, <span th:text="${name}">User</span></h1>
-                <p th:text="${email}">user@example.com</p>
-            </div>
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-outline">Logout</button>
-            </form>
+    <div class="header">
+        <div>
+            <h1>Dashboard</h1>
+            <p style="margin: 0; color: #86868b;">Logged in as <strong th:text="${name}">User</strong> (<span th:text="${email}">user@example.com</span>)</p>
         </div>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-outline">Logout</button>
+        </form>
+    </div>
 
-        <!-- Strava Connection Status -->
-        <div class="card">
-            <h2>Strava Integration</h2>
-            <div th:if="${isStravaLinked}">
-                <p><span class="status-badge status-connected">Connected</span> Your Strava account is linked.</p>
-                <p>Running Pacer is syncing your activities in the background.</p>
-                <form th:action="@{/admin/sync/activities}" method="post" style="margin-top: 1rem;">
-                    <button type="submit" class="btn btn-outline">Sync Recent Activities</button>
-                </form>
-            </div>
-            <div th:unless="${isStravaLinked}">
-                <p><span class="status-badge status-disconnected">Not Connected</span> Connect Strava to start analyzing your runs.</p>
-                <div id="strava-auth-container">
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Strava Status -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Strava</h2>
+                    <span th:if="${isStravaLinked}" class="status-badge status-connected">Linked</span>
+                    <span th:unless="${isStravaLinked}" class="status-badge status-disconnected">Unlinked</span>
+                </div>
+                
+                <div th:if="${isStravaLinked}">
+                    <form th:action="@{/admin/sync/activities}" method="post">
+                        <button type="submit" class="btn btn-outline" style="width: 100%">Sync Recent Activities</button>
+                    </form>
+                </div>
+                <div th:unless="${isStravaLinked}">
                     <button onclick="connectStrava()" class="btn btn-strava">Connect with Strava</button>
                 </div>
             </div>
+
+            <!-- Recent Activities -->
+            <div class="card">
+                <h2>Recent Runs</h2>
+                <ul class="activity-list" th:if="${not #lists.isEmpty(recentActivities)}">
+                    <li th:each="act : ${recentActivities}" class="activity-item" 
+                        th:onclick="'loadActivity(' + ${act.activityId} + ', this)'">
+                        <div class="activity-date" th:text="${act.date}">2023-10-25</div>
+                        <div class="activity-title" th:text="${act.distanceM / 1000.0} + ' km Run'">5.0 km Run</div>
+                        <div class="activity-stat">
+                            <span th:if="${act.avgPaceSecPerKm != null}" th:text="${act.avgPaceSecPerKm / 60} + ':' + ${#numbers.formatInteger(act.avgPaceSecPerKm % 60, 2)} + '/km'">5:30/km</span>
+                            <span th:if="${act.avgHr != null}" th:text="' • ' + ${act.avgHr} + ' bpm'"> • 150 bpm</span>
+                        </div>
+                    </li>
+                </ul>
+                <p th:if="${#lists.isEmpty(recentActivities)}" style="color: #86868b; text-align: center;">No recent activities found.</p>
+            </div>
+
+            <!-- MCP Tokens -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>API Tokens</h2>
+                    <button onclick="createToken()" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">+ New</button>
+                </div>
+                <ul class="token-list" th:if="${not #lists.isEmpty(tokens)}">
+                    <li th:each="token : ${tokens}" class="token-item">
+                        <div>
+                            <div th:text="${token.name}" style="font-weight: 500; font-size: 0.9rem;">MacBook</div>
+                            <code class="token-val" th:text="${token.token}">sk-...</code>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 2px 6px; font-size: 0.75rem;" th:onclick="'deleteToken(' + ${token.id} + ')'">Revoke</button>
+                    </li>
+                </ul>
+                <p th:if="${#lists.isEmpty(tokens)}" style="color: #86868b; font-size: 0.9rem;">No tokens generated.</p>
+            </div>
         </div>
 
-        <!-- API Tokens for MCP -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>MCP API Tokens</h2>
-                <button onclick="createToken()" class="btn btn-outline" style="font-size: 0.9rem;">+ New Token</button>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div id="empty-view" class="card empty-state">
+                <h3>Select an activity</h3>
+                <p>Choose a run from the list to view detailed analytics and charts.</p>
             </div>
-            <p>Use these tokens to connect Claude Desktop or Cursor to Running Pacer.</p>
-            
-            <ul class="token-list" th:if="${not #lists.isEmpty(tokens)}">
-                <li th:each="token : ${tokens}" class="token-item">
-                    <div>
-                        <strong th:text="${token.name}">Token Name</strong><br>
-                        <small style="color:#86868b" th:text="${#temporals.format(token.createdAt, 'yyyy-MM-dd')}">Date</small>
+
+            <div id="detail-view" class="card" style="display: none;">
+                <h2 id="detail-title" style="margin-bottom: 1.5rem;">Activity Details</h2>
+                
+                <div class="detail-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Distance</div>
+                        <div class="stat-value" id="detail-dist">0.0</div>
+                        <div class="stat-unit">km</div>
                     </div>
-                    <div>
-                        <code class="token-val" th:text="${token.token}">sk-running-...</code>
-                        <button class="btn btn-outline" style="padding: 4px 8px; margin-left: 10px; font-size: 0.8rem;" th:onclick="'deleteToken(' + ${token.id} + ')'">Revoke</button>
+                    <div class="stat-box">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="detail-time">00:00</div>
+                        <div class="stat-unit">duration</div>
                     </div>
-                </li>
-            </ul>
-            <p th:if="${#lists.isEmpty(tokens)}" style="color: #86868b; font-style: italic;">No tokens generated yet.</p>
+                    <div class="stat-box">
+                        <div class="stat-label">Avg Pace</div>
+                        <div class="stat-value" id="detail-pace">0:00</div>
+                        <div class="stat-unit">/km</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Avg HR</div>
+                        <div class="stat-value" id="detail-hr">-</div>
+                        <div class="stat-unit">bpm</div>
+                    </div>
+                </div>
+
+                <h3>Pace & Heart Rate</h3>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        let myChart = null;
+
+        async function loadActivity(id, element) {
+            // Highlight list item
+            document.querySelectorAll('.activity-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Switch view
+            document.getElementById('empty-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'block';
+
+            try {
+                // Fetch detail
+                const detailRes = await fetch(`/api/activities/${id}`);
+                const detail = await detailRes.json();
+                renderDetail(detail);
+
+                // Fetch streams
+                const streamsRes = await fetch(`/api/activities/${id}/streams`);
+                if (streamsRes.ok) {
+                    const streams = await streamsRes.json();
+                    renderChart(streams);
+                } else {
+                    if(myChart) myChart.destroy();
+                    // Handle no streams case
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Failed to load activity details');
+            }
+        }
+
+        function renderDetail(d) {
+            document.getElementById('detail-title').innerText = `${d.date} • ${d.startTime}`;
+            document.getElementById('detail-dist').innerText = (d.distanceM / 1000.0).toFixed(2);
+            
+            const min = Math.floor(d.movingTimeS / 60);
+            const sec = d.movingTimeS % 60;
+            document.getElementById('detail-time').innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+            
+            if (d.avgPaceSecPerKm) {
+                const pMin = Math.floor(d.avgPaceSecPerKm / 60);
+                const pSec = d.avgPaceSecPerKm % 60;
+                document.getElementById('detail-pace').innerText = `${pMin}:${pSec.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('detail-pace').innerText = "-";
+            }
+            
+            document.getElementById('detail-hr').innerText = d.avgHr || "-";
+        }
+
+        function renderChart(streams) {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            // Strava streams usually have 'distance', 'heartrate', 'velocity_smooth'
+            // We need to sync them. Assuming they have same length for simplicity or use index.
+            // Using distance as X axis is better.
+            
+            const distData = streams.distance?.data || [];
+            const hrData = streams.heartrate?.data || [];
+            // Velocity to Pace (min/km)
+            const paceData = (streams.velocity_smooth?.data || []).map(v => v > 0 ? (1000/v)/60 : null);
+
+            // X axis: distance in km
+            const labels = distData.map(d => (d/1000).toFixed(1));
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Heart Rate (bpm)',
+                            data: hrData,
+                            borderColor: '#e91e63',
+                            backgroundColor: 'rgba(233, 30, 99, 0.1)',
+                            yAxisID: 'y',
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Pace (min/km)',
+                            data: paceData,
+                            borderColor: '#2196f3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            yAxisID: 'y1',
+                            tension: 0.4,
+                            pointRadius: 0,
+                            spanGaps: true // ignore nulls
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: { display: false }, // Hide x labels for cleaner look
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'BPM' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            reverse: true, // Lower pace is faster (higher on graph)
+                            title: { display: true, text: 'Pace (min/km)' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Existing Auth/Token Functions ---
         async function connectStrava() {
             try {
                 const response = await fetch('/oauth/strava/authorize');
                 const data = await response.json();
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert('Failed to get authorization URL');
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Error connecting to Strava');
-            }
+                if (data.url) window.location.href = data.url;
+            } catch (e) { alert('Error connecting to Strava'); }
         }
 
         async function createToken() {
-            const name = prompt("Enter a name for this token (e.g., 'MacBook Air')");
+            const name = prompt("Token Name:");
             if (!name) return;
-
-            try {
-                const response = await fetch('/api/tokens', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name })
-                });
-                
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Failed to create token');
-                }
-            } catch (e) {
-                alert('Error creating token');
-            }
+            await fetch('/api/tokens', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({name}) });
+            window.location.reload();
         }
 
         async function deleteToken(id) {
-            if (!confirm('Are you sure you want to revoke this token?')) return;
-            
-            try {
-                const response = await fetch('/api/tokens/' + id, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Failed to delete token');
-                }
-            } catch (e) {
-                alert('Error deleting token');
-            }
+            if (!confirm('Revoke token?')) return;
+            await fetch('/api/tokens/' + id, { method: 'DELETE' });
+            window.location.reload();
         }
     </script>
 </body>

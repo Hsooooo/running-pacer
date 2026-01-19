@@ -200,6 +200,55 @@ class RunningQueryService(
         }
     }
 
+    fun getActivityDetail(userId: Long, activityId: Long): io.hansu.pacer.dto.ActivityDetail? {
+        val sql = """
+            select
+                activity_id, start_time_utc, distance_m, moving_time_s, elapsed_time_s,
+                avg_pace_sec_per_km, avg_hr, max_hr, elevation_gain_m, sport_type
+            from activities
+            where user_id = :userId and activity_id = :activityId
+        """.trimIndent()
+
+        val params = mapOf("userId" to userId, "activityId" to activityId)
+
+        return try {
+            jdbc.queryForObject(sql, params) { rs, _ ->
+                val startTime = rs.getObject("start_time_utc", LocalDateTime::class.java)
+                io.hansu.pacer.dto.ActivityDetail(
+                    activityId = rs.getLong("activity_id"),
+                    date = startTime.toLocalDate(),
+                    startTime = startTime.toLocalTime().toString().take(5),
+                    distanceM = rs.getInt("distance_m"),
+                    movingTimeS = rs.getInt("moving_time_s"),
+                    elapsedTimeS = rs.getInt("elapsed_time_s"),
+                    avgPaceSecPerKm = rs.getIntOrNull("avg_pace_sec_per_km"),
+                    avgHr = rs.getIntOrNull("avg_hr"),
+                    maxHr = rs.getIntOrNull("max_hr"),
+                    elevationGainM = rs.getIntOrNull("elevation_gain_m"),
+                    sportType = rs.getString("sport_type")
+                )
+            }
+        } catch (e: org.springframework.dao.EmptyResultDataAccessException) {
+            null
+        }
+    }
+
+    fun getActivityStreams(userId: Long, activityId: Long): String? {
+        val sql = """
+            select streams_json
+            from activity_streams
+            where user_id = :userId and activity_id = :activityId
+        """.trimIndent()
+
+        val params = mapOf("userId" to userId, "activityId" to activityId)
+
+        return try {
+            jdbc.queryForObject(sql, params, String::class.java)
+        } catch (e: org.springframework.dao.EmptyResultDataAccessException) {
+            null
+        }
+    }
+
 }
 
 private fun ResultSet.toActivitySummary(): ActivitySummary {
