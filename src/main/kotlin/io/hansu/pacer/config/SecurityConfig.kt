@@ -31,7 +31,7 @@ class SecurityConfig(
                     .requestMatchers("/", "/error", "/favicon.ico").permitAll()
                     .requestMatchers("/oauth/**", "/login/**").permitAll()
                     .requestMatchers("/webhook/**").permitAll()
-                    .requestMatchers("/sse", "/mcp/**").authenticated()
+                    .requestMatchers("/sse", "/mcp/**").permitAll()
                     .anyRequest().permitAll() // 개발 단계이므로 일단 열어둠
             }
             .addFilterBefore(apiTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
