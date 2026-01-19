@@ -12,6 +12,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService
@@ -40,6 +41,26 @@ class AuthorizationServerConfig(
     @Value("\${oauth.rsa.public-key}") private val publicKeyPem: String,
     @Value("\${oauth.rsa.private-key}") private val privateKeyPem: String
 ) {
+
+    @Bean
+    @Order(1)
+    fun authorizationServerSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
+        http.with(authorizationServerConfigurer) {
+            it.oidc(Customizer.withDefaults())
+        }
+
+        http.securityMatcher(authorizationServerConfigurer.endpointsMatcher)
+            .authorizeHttpRequests { authorize ->
+                authorize.anyRequest().authenticated()
+            }
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint(LoginUrlAuthenticationEntryPoint("/login"))
+            }
+            .oauth2Login(Customizer.withDefaults())
+
+        return http.build()
+    }
 
     @Bean
     fun registeredClientRepository(jdbcTemplate: JdbcTemplate): RegisteredClientRepository {

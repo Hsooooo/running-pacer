@@ -13,7 +13,7 @@ spring:
       client:
         registration:
           google:
-            redirect-uri: https://running-pacer.p-e.kr/login/oauth2/code/google
+            redirect-uri: ${APP_BASE_URL}/login/oauth2/code/google
 logging:
   level:
     org.flywaydb: DEBUG
@@ -26,7 +26,7 @@ strava:
   client-secret: ${STRAVA_CLIENT_SECRET}
   base-url: "https://www.strava.com"
   webhook-verify-token: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
-  redirect-uri: https://running-pacer.p-e.kr/oauth/strava/callback
+  redirect-uri: ${APP_BASE_URL}/oauth/strava/callback
 
 management:
   endpoints:
