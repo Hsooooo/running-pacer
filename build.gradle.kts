@@ -18,10 +18,14 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 dependencies {
+    // Spring AI BOM for MCP
+    implementation(platform("org.springframework.ai:spring-ai-bom:2.0.0-M1"))
+    
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -31,8 +35,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.experimental:mcp:0.7.0-SNAPSHOT")
-    implementation("org.springframework.experimental:mcp-webmvc-sse-transport:0.7.0-SNAPSHOT")
+    
+    // Spring AI MCP Server with Streamable HTTP support
+    implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+    
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")

@@ -3,6 +3,19 @@ server:
 spring:
   application:
     name: running-pacer
+  ai:
+    mcp:
+      server:
+        protocol: STREAMABLE
+        name: running-pacer
+        version: 1.0.0
+        type: SYNC
+        instructions: "Running Pacer MCP server provides running activity data and insights"
+        resource-change-notification: true
+        tool-change-notification: true
+        prompt-change-notification: true
+        streamable-http:
+          mcp-endpoint: /mcp
   security:
     oauth2:
       client:

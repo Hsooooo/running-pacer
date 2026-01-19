@@ -3,10 +3,8 @@ package io.hansu.pacer.mcp.tools
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.hansu.pacer.mcp.McpUserContext
 import io.hansu.pacer.service.RunningToolService
-import org.springframework.ai.mcp.server.McpServerFeatures.SyncToolRegistration
-import org.springframework.ai.mcp.spec.McpSchema.CallToolResult
-import org.springframework.ai.mcp.spec.McpSchema.TextContent
-import org.springframework.ai.mcp.spec.McpSchema.Tool
+import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification
+import io.modelcontextprotocol.spec.McpSchema
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -16,29 +14,45 @@ class RunningQueryTool(
     private val userContext: McpUserContext,
     private val objectMapper: ObjectMapper
 ) {
-    fun registration(): SyncToolRegistration {
-        return SyncToolRegistration(
-            Tool(
-                "running_query",
-                "러닝 데이터 조회를 위한 통합 도구입니다. 활동 목록, 기간 요약, 이상치 분석 등을 수행합니다.",
-                """
-                {
-                  "type": "object",
-                  "properties": {
-                    "mode": {
-                      "type": "string",
-                      "enum": ["activities", "summary", "anomalies"],
-                      "description": "조회 모드 (activities: 활동 목록, summary: 기간 요약, anomalies: 이상치 조회)"
-                    },
-                    "from": {"type": "string", "format": "date", "description": "시작일 (YYYY-MM-DD)"},
-                    "to": {"type": "string", "format": "date", "description": "종료일 (YYYY-MM-DD)"},
-                    "limit": {"type": "integer", "default": 30}
-                  },
-                  "required": ["mode", "from", "to"]
-                }
-                """.trimIndent()
-            )
-        ) { args ->
+    fun specification(): SyncToolSpecification {
+        val inputSchema = McpSchema.JsonSchema(
+            "object",
+            mapOf(
+                "mode" to mapOf(
+                    "type" to "string",
+                    "enum" to listOf("activities", "summary", "anomalies"),
+                    "description" to "조회 모드 (activities: 활동 목록, summary: 기간 요약, anomalies: 이상치 조회)"
+                ),
+                "from" to mapOf(
+                    "type" to "string",
+                    "format" to "date",
+                    "description" to "시작일 (YYYY-MM-DD)"
+                ),
+                "to" to mapOf(
+                    "type" to "string",
+                    "format" to "date",
+                    "description" to "종료일 (YYYY-MM-DD)"
+                ),
+                "limit" to mapOf(
+                    "type" to "integer",
+                    "default" to 30
+                )
+            ),
+            listOf("mode", "from", "to"),
+            false,
+            null,
+            null
+        )
+        
+        val tool = McpSchema.Tool.builder()
+            .name("running_query")
+            .description("러닝 데이터 조회를 위한 통합 도구입니다. 활동 목록, 기간 요약, 이상치 분석 등을 수행합니다.")
+            .inputSchema(inputSchema)
+            .build()
+        
+        return SyncToolSpecification(
+            tool
+        ) { _, args ->
             val userId = userContext.getCurrentUserId()
             val mode = args["mode"] as String
             val from = LocalDate.parse(args["from"] as String)
@@ -52,7 +66,10 @@ class RunningQueryTool(
                 else -> throw IllegalArgumentException("Unknown mode: $mode")
             }
 
-            CallToolResult(listOf(TextContent(objectMapper.writeValueAsString(result))), false)
+            McpSchema.CallToolResult(
+                listOf(McpSchema.TextContent(objectMapper.writeValueAsString(result))),
+                false
+            )
         }
     }
 }

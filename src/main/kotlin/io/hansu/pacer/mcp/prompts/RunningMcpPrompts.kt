@@ -1,32 +1,27 @@
 package io.hansu.pacer.mcp.prompts
 
-import org.springframework.ai.mcp.server.McpServerFeatures.SyncPromptRegistration
-import org.springframework.ai.mcp.spec.McpSchema.GetPromptResult
-import org.springframework.ai.mcp.spec.McpSchema.Prompt
-import org.springframework.ai.mcp.spec.McpSchema.PromptArgument
-import org.springframework.ai.mcp.spec.McpSchema.PromptMessage
-import org.springframework.ai.mcp.spec.McpSchema.Role
-import org.springframework.ai.mcp.spec.McpSchema.TextContent
+import io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification
+import io.modelcontextprotocol.spec.McpSchema
 import org.springframework.stereotype.Component
 
 @Component
 class RunningMcpPrompts {
 
-    fun registrations(): List<SyncPromptRegistration> = listOf(
+    fun specifications(): List<SyncPromptSpecification> = listOf(
         weeklyReportPrompt(),
         performanceAnalysisPrompt(),
         trainingAdvicePrompt()
     )
 
-    private fun weeklyReportPrompt() = SyncPromptRegistration(
-        Prompt(
+    private fun weeklyReportPrompt() = SyncPromptSpecification(
+        McpSchema.Prompt(
             "weekly_report",
             "주간 러닝 리포트를 생성하기 위한 프롬프트 템플릿",
             listOf(
-                PromptArgument("week_offset", "몇 주 전 데이터인지 (0=이번주, 1=지난주)", false)
+                McpSchema.PromptArgument("week_offset", "몇 주 전 데이터인지 (0=이번주, 1=지난주)", false)
             )
         )
-    ) { request ->
+    ) { _, request ->
         val weekOffset = request.arguments?.get("week_offset")?.toString()?.toIntOrNull() ?: 0
         val weekLabel = when (weekOffset) {
             0 -> "이번 주"
@@ -34,12 +29,12 @@ class RunningMcpPrompts {
             else -> "${weekOffset}주 전"
         }
 
-        GetPromptResult(
+        McpSchema.GetPromptResult(
             "$weekLabel 러닝 리포트 생성",
             listOf(
-                PromptMessage(
-                    Role.USER,
-                    TextContent(
+                McpSchema.PromptMessage(
+                    McpSchema.Role.USER,
+                    McpSchema.TextContent(
                         """
                         당신은 전문 러닝 코치입니다. $weekLabel 러닝 데이터를 분석해주세요.
 
@@ -62,23 +57,23 @@ class RunningMcpPrompts {
         )
     }
 
-    private fun performanceAnalysisPrompt() = SyncPromptRegistration(
-        Prompt(
+    private fun performanceAnalysisPrompt() = SyncPromptSpecification(
+        McpSchema.Prompt(
             "performance_analysis",
             "러닝 성과 분석을 위한 프롬프트 템플릿",
             listOf(
-                PromptArgument("days", "분석할 기간 (일)", true)
+                McpSchema.PromptArgument("days", "분석할 기간 (일)", true)
             )
         )
-    ) { request ->
+    ) { _, request ->
         val days = request.arguments?.get("days")?.toString()?.toIntOrNull() ?: 30
 
-        GetPromptResult(
+        McpSchema.GetPromptResult(
             "최근 ${days}일 성과 분석",
             listOf(
-                PromptMessage(
-                    Role.USER,
-                    TextContent(
+                McpSchema.PromptMessage(
+                    McpSchema.Role.USER,
+                    McpSchema.TextContent(
                         """
                         최근 ${days}일간의 러닝 데이터를 종합 분석해주세요.
 
@@ -98,23 +93,23 @@ class RunningMcpPrompts {
         )
     }
 
-    private fun trainingAdvicePrompt() = SyncPromptRegistration(
-        Prompt(
+    private fun trainingAdvicePrompt() = SyncPromptSpecification(
+        McpSchema.Prompt(
             "training_advice",
             "훈련 조언을 위한 프롬프트 템플릿",
             listOf(
-                PromptArgument("goal", "훈련 목표 (예: 5km 기록 단축, 마라톤 완주)", true)
+                McpSchema.PromptArgument("goal", "훈련 목표 (예: 5km 기록 단축, 마라톤 완주)", true)
             )
         )
-    ) { request ->
+    ) { _, request ->
         val goal = request.arguments?.get("goal") ?: "일반적인 체력 향상"
 
-        GetPromptResult(
+        McpSchema.GetPromptResult(
             "훈련 조언: $goal",
             listOf(
-                PromptMessage(
-                    Role.USER,
-                    TextContent(
+                McpSchema.PromptMessage(
+                    McpSchema.Role.USER,
+                    McpSchema.TextContent(
                         """
                         사용자의 목표: $goal
 
