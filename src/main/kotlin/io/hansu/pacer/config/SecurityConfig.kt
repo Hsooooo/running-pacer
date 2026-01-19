@@ -27,7 +27,7 @@ class SecurityConfig(
                     .requestMatchers("/", "/error", "/favicon.ico").permitAll()
                     .requestMatchers("/oauth/**", "/login/**").permitAll()
                     .requestMatchers("/webhook/**").permitAll()
-                    .requestMatchers("/sse", "/mcp/**").authenticated() // API Token 필요
+                    .requestMatchers("/sse", "/mcp/**").authenticated()
                     .anyRequest().permitAll() // 개발 단계이므로 일단 열어둠
             }
             .addFilterBefore(apiTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
@@ -42,6 +42,9 @@ class SecurityConfig(
                     .userInfoEndpoint {
                         it.userService(customOAuth2UserService)
                     }
+            }
+            .oauth2ResourceServer { resourceServer ->
+                resourceServer.jwt {}
             }
 
         return http.build()

@@ -28,33 +28,35 @@ class ApiTokenFilter(
             return
         }
 
-        val header = request.getHeader("Authorization")
-        if (header != null && header.startsWith("Bearer ")) {
-            val token = header.substring(7)
-            val user = apiTokenService.verifyToken(token)
+        if (SecurityContextHolder.getContext().authentication == null) {
+            val header = request.getHeader("Authorization")
+            if (header != null && header.startsWith("Bearer ")) {
+                val token = header.substring(7)
+                if (token.startsWith("sk-running-")) {
+                    val user = apiTokenService.verifyToken(token)
 
-            if (user != null) {
-                // MCP 컨텍스트에서 userId를 쉽게 꺼낼 수 있도록 attributes 설정
-                val attributes = mapOf(
-                    "userId" to user.id,
-                    "sub" to user.providerId,
-                    "email" to user.email
-                )
-                
-                // OAuth2User 주체 생성 (기존 컨트롤러/서비스와의 호환성 유지)
-                val principal = DefaultOAuth2User(
-                    listOf(SimpleGrantedAuthority("ROLE_USER")),
-                    attributes,
-                    "sub"
-                )
+                    if (user != null) {
+                        val attributes = mapOf(
+                            "userId" to user.id,
+                            "sub" to user.providerId,
+                            "email" to user.email
+                        )
 
-                val auth = UsernamePasswordAuthenticationToken(
-                    principal,
-                    null,
-                    principal.authorities
-                )
-                
-                SecurityContextHolder.getContext().authentication = auth
+                        val principal = DefaultOAuth2User(
+                            listOf(SimpleGrantedAuthority("ROLE_USER")),
+                            attributes,
+                            "sub"
+                        )
+
+                        val auth = UsernamePasswordAuthenticationToken(
+                            principal,
+                            null,
+                            principal.authorities
+                        )
+
+                        SecurityContextHolder.getContext().authentication = auth
+                    }
+                }
             }
         }
 

@@ -28,6 +28,12 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
+oauth:
+  issuer: ${OAUTH_ISSUER:http://localhost:8080}
+  rsa:
+    public-key: ${OAUTH_RSA_PUBLIC_KEY:}
+    private-key: ${OAUTH_RSA_PRIVATE_KEY:}
+
 strava:
   client-id: ${STRAVA_CLIENT_ID}
   client-secret: ${STRAVA_CLIENT_SECRET}

@@ -35,6 +35,7 @@ dependencies {
     implementation("org.springframework.experimental:mcp-webmvc-sse-transport:0.7.0-SNAPSHOT")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
