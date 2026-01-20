@@ -20,7 +20,7 @@ class ApiTokenController(
     ): ResponseEntity<ApiTokenResponse> {
         if (principal == null) return ResponseEntity.status(401).build()
         
-        val userId = principal.attributes["userId"] as? Long 
+        val userId = (principal.attributes["userId"] as? String)?.toLongOrNull()
             ?: return ResponseEntity.status(401).build()
         
         val token = apiTokenService.createToken(userId, request.name)
@@ -30,7 +30,7 @@ class ApiTokenController(
     @GetMapping
     fun listTokens(@AuthenticationPrincipal principal: OAuth2User?): ResponseEntity<List<ApiTokenResponse>> {
         if (principal == null) return ResponseEntity.status(401).build()
-        val userId = principal.attributes["userId"] as? Long
+        val userId = (principal.attributes["userId"] as? String)?.toLongOrNull()
              ?: return ResponseEntity.status(401).build()
         
         val tokens = apiTokenService.listTokens(userId)
@@ -43,7 +43,7 @@ class ApiTokenController(
         @AuthenticationPrincipal principal: OAuth2User?
     ): ResponseEntity<Void> {
         if (principal == null) return ResponseEntity.status(401).build()
-        val userId = principal.attributes["userId"] as? Long
+        val userId = (principal.attributes["userId"] as? String)?.toLongOrNull()
              ?: return ResponseEntity.status(401).build()
         
         apiTokenService.deleteToken(userId, tokenId)

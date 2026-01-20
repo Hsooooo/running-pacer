@@ -29,7 +29,7 @@ class LoginController(
             return "redirect:/login"
         }
 
-        val userId = principal.attributes["userId"] as Long
+        val userId = (principal.attributes["userId"] as String).toLong()
         val isStravaLinked = stravaUserLinksRepository.existsByUserId(userId)
         
         // API 토큰 목록 조회 (없으면 빈 리스트)

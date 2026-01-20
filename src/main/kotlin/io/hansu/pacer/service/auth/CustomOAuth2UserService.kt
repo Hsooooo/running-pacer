@@ -43,8 +43,9 @@ class CustomOAuth2UserService(
         }
         
         // Return wrapped user with userId in attributes for easy access
+        // Note: userId를 String으로 저장 (Jackson 3.x polymorphic deserialization 보안 정책)
         val newAttributes = HashMap(attributes)
-        newAttributes["userId"] = user.id
+        newAttributes["userId"] = user.id.toString()
         
         val userNameAttributeName = userRequest.clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName
             ?: "sub"
