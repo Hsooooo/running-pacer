@@ -31,7 +31,8 @@ class SecurityConfig(
                     .requestMatchers("/", "/error", "/favicon.ico").permitAll()
                     .requestMatchers("/oauth/**", "/login/**").permitAll()
                     .requestMatchers("/webhook/**").permitAll()
-                    .requestMatchers("/sse", "/mcp/**").permitAll()
+                    // MCP 엔드포인트는 인증 필수 (JWT 또는 API 토큰)
+                    .requestMatchers("/sse", "/mcp/**").authenticated()
                     .anyRequest().permitAll() // 개발 단계이므로 일단 열어둠
             }
             .addFilterBefore(apiTokenFilter, UsernamePasswordAuthenticationFilter::class.java)

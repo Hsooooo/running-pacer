@@ -22,38 +22,80 @@ class RegisteredClientInitializer(
     @Bean
     fun initRegisteredClient(): ApplicationRunner {
         return ApplicationRunner {
-            val existing = registeredClientRepository.findByClientId("chatgpt-mcp")
-            if (existing == null) {
-                val client = RegisteredClient.withId(UUID.randomUUID().toString())
-                    .clientId("chatgpt-mcp")
-                    .clientSecret(passwordEncoder.encode("chatgpt-secret"))
-                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                    .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                    .redirectUri("https://chatgpt.com/connector_platform_oauth_redirect")
-                    .redirectUri("https://platform.openai.com/apps-manage/oauth")
-                    .scope("openid")
-                    .scope("offline_access")
-                    .scope("mcp")
-                    .clientSettings(
-                        ClientSettings.builder()
-                            .requireProofKey(true)
-                            .requireAuthorizationConsent(false)
-                            .build()
-                    )
-                    .tokenSettings(
-                        TokenSettings.builder()
-                            .authorizationCodeTimeToLive(Duration.ofMinutes(5))
-                            .accessTokenTimeToLive(Duration.ofHours(1))
-                            .refreshTokenTimeToLive(Duration.ofDays(30))
-                            .reuseRefreshTokens(false)
-                            .build()
-                    )
-                    .build()
-
-                registeredClientRepository.save(client)
-            }
+            initChatGptClient()
+            initClaudeClient()
         }
+    }
+
+    private fun initChatGptClient() {
+        if (registeredClientRepository.findByClientId("chatgpt-mcp") != null) return
+
+        val client = RegisteredClient.withId(UUID.randomUUID().toString())
+            .clientId("chatgpt-mcp")
+            .clientSecret(passwordEncoder.encode("chatgpt-secret"))
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+            .redirectUri("https://chatgpt.com/connector_platform_oauth_redirect")
+            .redirectUri("https://platform.openai.com/apps-manage/oauth")
+            .scope("openid")
+            .scope("offline_access")
+            .scope("mcp")
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireProofKey(true)
+                    .requireAuthorizationConsent(false)
+                    .build()
+            )
+            .tokenSettings(
+                TokenSettings.builder()
+                    .authorizationCodeTimeToLive(Duration.ofMinutes(5))
+                    .accessTokenTimeToLive(Duration.ofHours(1))
+                    .refreshTokenTimeToLive(Duration.ofDays(30))
+                    .reuseRefreshTokens(false)
+                    .build()
+            )
+            .build()
+
+        registeredClientRepository.save(client)
+    }
+
+    private fun initClaudeClient() {
+        if (registeredClientRepository.findByClientId("claude-mcp") != null) return
+
+        val client = RegisteredClient.withId(UUID.randomUUID().toString())
+            .clientId("claude-mcp")
+            .clientSecret(passwordEncoder.encode("claude-mcp-secret"))
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+            // Claude 웹 콜백 URLs
+            .redirectUri("https://claude.ai/api/mcp/auth_callback")
+            .redirectUri("https://claude.com/api/mcp/auth_callback")
+            // 로컬 개발/테스트용 (Claude Code, MCP Inspector)
+            .redirectUri("http://localhost:6274/oauth/callback")
+            .redirectUri("http://localhost:6274/oauth/callback/debug")
+            .scope("openid")
+            .scope("offline_access")
+            .scope("mcp")
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireProofKey(true)  // PKCE 필수
+                    .requireAuthorizationConsent(false)
+                    .build()
+            )
+            .tokenSettings(
+                TokenSettings.builder()
+                    .authorizationCodeTimeToLive(Duration.ofMinutes(5))
+                    .accessTokenTimeToLive(Duration.ofHours(1))
+                    .refreshTokenTimeToLive(Duration.ofDays(30))
+                    .reuseRefreshTokens(false)
+                    .build()
+            )
+            .build()
+
+        registeredClientRepository.save(client)
     }
 }

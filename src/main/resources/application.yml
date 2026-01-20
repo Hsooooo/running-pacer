@@ -25,6 +25,9 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET:dummy-client-secret}
             scope: email, profile
             client-name: Google
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH_ISSUER:http://localhost:8080}
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/running_pacer}
     username: ${DB_USERNAME:pacer}
