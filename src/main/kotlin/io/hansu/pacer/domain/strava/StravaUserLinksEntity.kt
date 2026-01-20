@@ -24,6 +24,9 @@ class StravaUserLinksEntity(
     @Column(name = "status", nullable = false, length = 20)
     val status: String = "ACTIVE",
 
+    @Column(name = "initial_sync_done", nullable = false)
+    var initialSyncDone: Boolean = false,
+
     @Column(name = "created_at", nullable = false)
     val createdAt: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 

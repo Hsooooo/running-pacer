@@ -32,7 +32,7 @@ spring:
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/running_pacer}
     username: ${DB_USERNAME:pacer}
-    password: ${DB_PASSWORD:pacer123}
+    password: ${DB_PASSWORD:pacer}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -60,3 +60,4 @@ strava:
   webhook-verify-token: ${STRAVA_WEBHOOK_VERIFY_TOKEN}
   base-url: "https://www.strava.com"
   api-base-url: "https://www.strava.com/api/v3"
+  redirect-uri: ${APP_BASE_URL}/oauth/strava/callback

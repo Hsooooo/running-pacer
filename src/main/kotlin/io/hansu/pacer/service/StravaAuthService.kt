@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestClient
+import io.hansu.pacer.event.StravaLinkCreatedEvent
+import org.springframework.context.ApplicationEventPublisher
 import java.time.Instant
 
 @Service
@@ -18,7 +20,8 @@ class StravaAuthService(
     private val restClient: RestClient,
     private val props: StravaProps,
     private val tokenRepo: StravaTokenRepository,
-    private val stravaUserLinksRepo: StravaUserLinksRepository
+    private val stravaUserLinksRepo: StravaUserLinksRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -61,6 +64,8 @@ class StravaAuthService(
             expiresAt = res.expires_at,
             scope = null
         )
+
+        eventPublisher.publishEvent(StravaLinkCreatedEvent(targetUserId, athleteId))
     }
 
     private fun saveNewLink(userId: Long, athleteId: Long) {

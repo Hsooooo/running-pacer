@@ -127,7 +127,7 @@ class RunningQueryService(
 
         val sql = """
         select
-          date_sub(stat_date, interval weekday(stat_date) day) as week_start,
+          date_trunc('week', stat_date)::date as week_start,
           $valueExpr as value
         from daily_stats
         where user_id = :userId

@@ -17,6 +17,17 @@
         .btn-strava:hover { background-color: #E34402; }
         .btn-outline { border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; }
         .btn-outline:hover { background: #f5f5f7; }
+        .btn-small { padding: 4px 10px; font-size: 0.8rem; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: #86868b; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #d2d2d7; border-radius: 6px; box-sizing: border-box; }
         
         .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
         .status-connected { background-color: #e8f5e9; color: #2e7d32; }
@@ -47,6 +58,19 @@
         .token-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f7; }
         .token-val { filter: blur(4px); transition: filter 0.2s; cursor: pointer; }
         .token-val:hover { filter: none; }
+
+        /* Dashboard Insights */
+        .insight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; grid-column: 1 / -1; }
+        .insight-card { background: white; padding: 1.25rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-height: 120px; }
+        .insight-label { font-size: 0.75rem; color: #86868b; margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .insight-value { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .insight-sub { font-size: 0.85rem; color: #86868b; }
+        .insight-chart { height: 40px; margin-top: 0.5rem; width: 100%; }
+        .trend-up { color: #34c759; }
+        .trend-down { color: #ff3b30; }
+        .risk-low { color: #34c759; }
+        .risk-medium { color: #ff9500; }
+        .risk-high { color: #ff3b30; }
     </style>
 </head>
 <body>
@@ -61,6 +85,30 @@
     </div>
 
     <div class="container">
+        <div class="insight-grid" id="insight-section">
+            <div class="insight-card">
+                <div class="insight-label">Weekly Distance</div>
+                <div class="insight-value" id="week-dist">0.0 <span class="stat-unit">km</span></div>
+                <div class="insight-sub" id="week-count">0 runs this week</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">4-Week Trend</div>
+                <div class="insight-value" id="trend-val">-</div>
+                <div class="insight-sub" id="trend-desc">Calculating...</div>
+                <div class="insight-chart"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Anomalies (30d)</div>
+                <div class="insight-value" id="anomaly-count">0</div>
+                <div class="insight-sub">Detected fatigue signs</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Condition Risk</div>
+                <div class="insight-value" id="risk-score">0</div>
+                <div class="insight-sub" id="risk-level">Unknown</div>
+            </div>
+        </div>
+
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Strava Status -->
@@ -72,9 +120,10 @@
                 </div>
                 
                 <div th:if="${isStravaLinked}">
-                    <form th:action="@{/admin/sync/activities}" method="post">
+                    <form th:action="@{/admin/sync/activities}" method="post" style="margin-bottom: 8px;">
                         <button type="submit" class="btn btn-outline" style="width: 100%">Sync Recent Activities</button>
                     </form>
+                    <button onclick="openSyncModal()" class="btn btn-outline btn-small" style="width: 100%">Custom Sync...</button>
                 </div>
                 <div th:unless="${isStravaLinked}">
                     <button onclick="connectStrava()" class="btn btn-strava">Connect with Strava</button>
@@ -83,7 +132,10 @@
 
             <!-- Recent Activities -->
             <div class="card">
-                <h2>Recent Runs</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Recent Runs</h2>
+                    <a href="/activities" class="btn btn-outline btn-small" style="text-decoration: none;">View All</a>
+                </div>
                 <ul class="activity-list" th:if="${not #lists.isEmpty(recentActivities)}">
                     <li th:each="act : ${recentActivities}" class="activity-item" 
                         th:onclick="'loadActivity(' + ${act.activityId} + ', this)'">
@@ -158,8 +210,123 @@
         </div>
     </div>
 
+    <div id="syncModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin:0">Custom Sync</h3>
+                <span class="close" onclick="closeSyncModal()">&times;</span>
+            </div>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Select date range to sync from Strava.</p>
+            <form id="syncForm" onsubmit="handleCustomSync(event)">
+                <div class="form-group">
+                    <label>From Date</label>
+                    <input type="date" name="from" required>
+                </div>
+                <div class="form-group">
+                    <label>To Date</label>
+                    <input type="date" name="to" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; background-color: #0071e3; color: white;">Start Sync</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         let myChart = null;
+
+        function openSyncModal() {
+            document.getElementById('syncModal').style.display = 'block';
+            // Set default dates (last 30 days)
+            const today = new Date().toISOString().split('T')[0];
+            const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            document.querySelector('input[name="to"]').value = today;
+            document.querySelector('input[name="from"]').value = lastMonth;
+        }
+
+        function closeSyncModal() {
+            document.getElementById('syncModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('syncModal')) {
+                closeSyncModal();
+            }
+        }
+
+        async function handleCustomSync(e) {
+            e.preventDefault();
+            const form = e.target;
+            const from = form.from.value;
+            const to = form.to.value;
+            
+            try {
+                const res = await fetch(`/admin/sync/activities?from=${from}&to=${to}`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                closeSyncModal();
+            } catch (err) {
+                alert('Sync failed: ' + err.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/dashboard/insights');
+                if (!res.ok) return;
+                const data = await res.json();
+                renderDashboard(data);
+            } catch (e) { console.error('Failed to load dashboard', e); }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('week-dist').innerHTML = `${(data.weeklySummary.totalDistanceM / 1000.0).toFixed(1)} <span class="stat-unit">km</span>`;
+            document.getElementById('week-count').innerText = `${data.weeklySummary.runCount} runs this week`;
+
+            const trendVal = data.trend.changePercent ? (data.trend.changePercent > 0 ? '+' : '') + data.trend.changePercent.toFixed(1) + '%' : '-';
+            const trendEl = document.getElementById('trend-val');
+            trendEl.innerText = trendVal;
+            trendEl.className = 'insight-value ' + (data.trend.trend === 'IMPROVING' ? 'trend-up' : (data.trend.trend === 'DECLINING' ? 'trend-down' : ''));
+            document.getElementById('trend-desc').innerText = data.trend.interpretation;
+
+            document.getElementById('anomaly-count').innerText = data.anomaliesCount;
+
+            const riskEl = document.getElementById('risk-score');
+            riskEl.innerText = data.riskScore;
+            riskEl.className = 'insight-value ' + `risk-${data.riskLevel.toLowerCase()}`;
+            document.getElementById('risk-level').innerText = `${data.riskLevel} Risk`;
+
+            if (data.trend.dataPoints && data.trend.dataPoints.length > 0) {
+                renderSparkline('trendChart', data.trend.dataPoints.map(p => p.value), '#2196f3');
+            }
+        }
+
+        function renderSparkline(canvasId, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, i) => i),
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { x: { display: false }, y: { display: false } }
+                }
+            });
+        }
 
         async function loadActivity(id, element) {
             // Highlight list item

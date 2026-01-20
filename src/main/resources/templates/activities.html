@@ -1,0 +1,227 @@
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 2rem; color: #1d1d1f; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        
+        .btn { display: inline-block; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; cursor: pointer; border: 1px solid #d2d2d7; background: white; color: #1d1d1f; }
+        .btn:hover { background: #f5f5f7; }
+        .btn-primary { background: #0071e3; color: white; border: none; }
+        .btn-primary:hover { background: #0077ed; }
+
+        .filter-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 0.85rem; color: #86868b; font-weight: 500; }
+        input[type="date"] { padding: 8px; border: 1px solid #d2d2d7; border-radius: 8px; font-family: inherit; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; border-bottom: 1px solid #d2d2d7; color: #86868b; font-size: 0.85rem; text-transform: uppercase; }
+        td { padding: 16px 12px; border-bottom: 1px solid #f5f5f7; }
+        tr:hover td { background: #fafafa; cursor: pointer; }
+        
+        .pagination { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; align-items: center; }
+
+        /* Detail Section */
+        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-box { background: #f9f9fa; padding: 1rem; border-radius: 8px; text-align: center; }
+        .stat-label { font-size: 0.75rem; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+        .stat-unit { font-size: 0.85rem; color: #86868b; font-weight: 400; }
+        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Activities</h1>
+                <p style="margin: 0; color: #86868b;">Explore your running history</p>
+            </div>
+            <a href="/" class="btn">Back to Dashboard</a>
+        </div>
+
+        <div id="detail-card" class="card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <h2 id="detail-title" style="margin:0">Activity Details</h2>
+                <button onclick="closeDetail()" class="btn" style="padding: 4px 10px;">Close</button>
+            </div>
+            
+            <div class="detail-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Distance</div>
+                    <div class="stat-value" id="detail-dist">0.0</div>
+                    <div class="stat-unit">km</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value" id="detail-time">00:00</div>
+                    <div class="stat-unit">duration</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg Pace</div>
+                    <div class="stat-value" id="detail-pace">0:00</div>
+                    <div class="stat-unit">/km</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg HR</div>
+                    <div class="stat-value" id="detail-hr">-</div>
+                    <div class="stat-unit">bpm</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <form method="get" class="filter-bar">
+                <div class="form-group">
+                    <label>From</label>
+                    <input type="date" name="from" th:value="${fromDate}">
+                </div>
+                <div class="form-group">
+                    <label>To</label>
+                    <input type="date" name="to" th:value="${toDate}">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Distance</th>
+                        <th>Time</th>
+                        <th>Avg Pace</th>
+                        <th>Avg HR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="act : ${activities}" th:onclick="'loadActivity(' + ${act.activityId} + ')'">
+                        <td th:text="${act.date}">2023-10-25</td>
+                        <td th:text="${#numbers.formatDecimal(act.distanceM / 1000.0, 1, 2) + ' km'}">5.00 km</td>
+                        <td th:text="${act.movingTimeS / 60} + ':' + ${#numbers.formatInteger(act.movingTimeS % 60, 2)}">25:00</td>
+                        <td>
+                            <span th:if="${act.avgPaceSecPerKm != null}" th:text="${act.avgPaceSecPerKm / 60} + ':' + ${#numbers.formatInteger(act.avgPaceSecPerKm % 60, 2)} + '/km'">5:00/km</span>
+                            <span th:if="${act.avgPaceSecPerKm == null}">-</span>
+                        </td>
+                        <td th:text="${act.avgHr != null ? act.avgHr + ' bpm' : '-'}">150 bpm</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(activities)}">
+                        <td colspan="5" style="text-align: center; color: #86868b; padding: 3rem;">No activities found in this period.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination" th:if="${not #lists.isEmpty(activities)}">
+                <a th:if="${currentPage > 1}" th:href="@{/activities(page=${currentPage - 1}, from=${fromDate}, to=${toDate})}" class="btn">Previous</a>
+                <span th:text="'Page ' + ${currentPage}">Page 1</span>
+                <a th:href="@{/activities(page=${currentPage + 1}, from=${fromDate}, to=${toDate})}" class="btn">Next</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let myChart = null;
+
+        async function loadActivity(id) {
+            document.getElementById('detail-card').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            try {
+                const detailRes = await fetch(`/api/activities/${id}`);
+                const detail = await detailRes.json();
+                renderDetail(detail);
+
+                const streamsRes = await fetch(`/api/activities/${id}/streams`);
+                if (streamsRes.ok) {
+                    const streams = await streamsRes.json();
+                    renderChart(streams);
+                } else {
+                    if(myChart) myChart.destroy();
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Failed to load activity details');
+            }
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-card').style.display = 'none';
+        }
+
+        function renderDetail(d) {
+            document.getElementById('detail-title').innerText = `${d.date} • ${d.startTime} • ${d.sportType}`;
+            document.getElementById('detail-dist').innerText = (d.distanceM / 1000.0).toFixed(2);
+            
+            const min = Math.floor(d.movingTimeS / 60);
+            const sec = d.movingTimeS % 60;
+            document.getElementById('detail-time').innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+            
+            if (d.avgPaceSecPerKm) {
+                const pMin = Math.floor(d.avgPaceSecPerKm / 60);
+                const pSec = d.avgPaceSecPerKm % 60;
+                document.getElementById('detail-pace').innerText = `${pMin}:${pSec.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('detail-pace').innerText = "-";
+            }
+            
+            document.getElementById('detail-hr').innerText = d.avgHr || "-";
+        }
+
+        function renderChart(streams) {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            const distData = streams.distance?.data || [];
+            const hrData = streams.heartrate?.data || [];
+            const paceData = (streams.velocity_smooth?.data || []).map(v => v > 0 ? (1000/v)/60 : null);
+            const labels = distData.map(d => (d/1000).toFixed(1));
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Heart Rate (bpm)',
+                            data: hrData,
+                            borderColor: '#e91e63',
+                            backgroundColor: 'rgba(233, 30, 99, 0.1)',
+                            yAxisID: 'y',
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Pace (min/km)',
+                            data: paceData,
+                            borderColor: '#2196f3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            yAxisID: 'y1',
+                            tension: 0.4,
+                            pointRadius: 0,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { display: false },
+                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'BPM' } },
+                        y1: { type: 'linear', display: true, position: 'right', reverse: true, title: { display: true, text: 'Pace' }, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

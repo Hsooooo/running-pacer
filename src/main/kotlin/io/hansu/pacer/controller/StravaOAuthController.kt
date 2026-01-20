@@ -2,6 +2,7 @@ package io.hansu.pacer.controller
 
 import io.hansu.pacer.config.StravaProps
 import io.hansu.pacer.service.StravaAuthService
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,7 +19,7 @@ class StravaOAuthController(
 ) {
     @GetMapping("/oauth/strava/authorize")
     fun getAuthorizeUrl(@AuthenticationPrincipal principal: OAuth2User?): Map<String, String> {
-        val userId = principal?.attributes?.get("userId") as? Long 
+        val userId = (principal?.attributes["userId"] as? String)?.toLongOrNull()
             ?: throw IllegalStateException("User must be logged in")
 
         val state = Base64.getUrlEncoder().encodeToString(userId.toString().toByteArray())

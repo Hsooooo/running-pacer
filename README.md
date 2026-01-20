@@ -32,19 +32,26 @@ Running Pacer는 Strava API와 연동된 러닝 활동 데이터 분석 서비�
 
 Running Pacer는 사용자의 Strava 러닝 데이터와 AI 기반 분석 도구 사이의 가교 역할을 합니다. 웹훅(webhook)을 통해 자동으로 활동 데이터를 수집하고, 이를 구조화된 형식으로 처리하여 MCP 서버를 통해 외부에 노출합니다.
 
+**데이터 흐름:**
+1. **웹훅 수신**: Strava 활동 발생 시 실시간 알림 수신 및 DB 저장.
+2. **백그라운드 작업**: 30초 주기로 스케줄러가 Pending 상태의 작업을 가져와 Strava API에서 상세 데이터(Activity, Laps, Streams) 조회.
+3. **데이터 처리**: 활동 정보를 Upsert하고 주간/일간 통계(`daily_stats`)를 증분 집계.
+4. **인사이트 제공**: VDOT, TSS, 트렌드 분석 등을 통해 MCP 도구로 AI 에이전트에게 데이터 노출.
+
 **주요 기능:**
 - **Strava 연동**: 실시간 활동 업데이트를 위한 OAuth2 흐름 및 웹훅 처리.
 - **데이터 분석**: 성능, 주간/월간 추세 및 이상 징후 감지(예: 페이스 대비 높은 심박수)에 대한 구조화된 분석.
-- **MCP 서버**: 도구(tools), 리소스(resources) 및 프롬프트(prompts)를 지원하는 내장 MCP 서버를 통해 Claude와 같은 AI 에이전트가 러닝 데이터를 조회하고 분석할 수 있도록 지원.
-- **자동 데이터 수집**: 러닝 데이터를 가져오고 처리하기 위한 백그라운드 작업 실행.
+- **MCP 서버**: 도구(tools), 리소스(resources) 및 프롬프트(prompts)를 지원하는 내장 MCP 서버를 통해 AI 에이전트가 러닝 데이터를 조회하고 분석할 수 있도록 지원.
+- **하이브리드 인증**: AI 에이전트 연동을 위한 전용 API 토큰(`sk-running-`) 및 표준 OAuth 2.1(JWT) 지원.
 
 ---
 
 ## 기술 스택
 
 - **언어**: Kotlin (JDK 17)
-- **프레임워크**: Spring Boot 4.0.1 (Experimental)
-- **데이터베이스**: MySQL 8.4
+- **프레임워크**: Spring Boot 4.0.1 (Spring Authorization Server 포함)
+- **데이터베이스**: PostgreSQL (운영/코드 기준), MySQL 8.4 (로컬 테스트용)
+  - *주의: 현재 코드는 PostgreSQL의 `ON CONFLICT` 문법을 사용하고 있어 로컬 개발 시 호환성에 주의가 필요합니다.*
 - **마이그레이션**: Flyway
 - **빌드 시스템**: Gradle (Kotlin DSL)
 - **컨테이너화**: Docker & Docker Compose
@@ -109,7 +116,12 @@ Spring Boot 애플리케이션을 로컬에서 직접 실행하려는 경우:
   ```bash
   ./gradlew test
   ```
-  *참고: `IngestJobSchedulerTest`의 일부 테스트는 현재 이슈가 있는 것으로 알려져 있습니다.*
+- **알려진 이슈 (Known Issues):**
+  - `IngestJobSchedulerTest`의 일부 테스트 실패.
+  - 데이터베이스 호환성: 코드가 PostgreSQL `ON CONFLICT`를 사용하여 MySQL 환경에서 에러 발생 가능.
+  - 통계 집계: `daily_stats` 집계 시 사용자 시간대가 아닌 UTC 기준을 사용하여 날짜별 오차 발생 가능.
+  - 보안: `RegisteredClientInitializer` 내 OAuth 클라이언트 시크릿 하드코딩 및 `SecurityConfig`의 넓은 허용 범위.
+  - 상세 내용은 [docs/roadmap.md](docs/roadmap.md)를 참조하십시오.
 - **실행 가능한 JAR 생성:**
   ```bash
   ./gradlew bootJar
@@ -186,6 +198,12 @@ Running Pacer는 **SSE (Server-Sent Events)** 전송 방식을 사용하여 MCP 
 - **메시지 엔드포인트**: `http://localhost:8080/mcp/message`
 
 ### 클라이언트 연결 가이드
+
+#### 0. 인증 토큰 준비
+MCP 서버에 연결하려면 API 토큰이 필요합니다.
+- 웹 대시보드 로그인 후 API 토큰 관리 메뉴에서 생성하거나, DB의 `api_tokens` 테이블에서 직접 확인 가능합니다.
+- 토큰 형식: `sk-running-xxxxx...`
+- 연결 시 `Authorization: Bearer sk-running-xxxxx` 헤더를 사용합니다.
 
 #### 1. OpenCode (또는 VS Code) 설정
 프로젝트 루트에 `.opencode/config.json` 파일을 생성하거나 수정합니다:

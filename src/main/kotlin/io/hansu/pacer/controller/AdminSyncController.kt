@@ -20,18 +20,20 @@ class AdminSyncController(
 ) {
     @PostMapping("/sync/activities")
     fun syncActivities(
-        @RequestParam(required = false) after: Long?,
-        @RequestParam(required = false) before: Long?,
+        @RequestParam(required = false) from: String?,
+        @RequestParam(required = false) to: String?,
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "30") perPage: Int,
         @AuthenticationPrincipal principal: OAuth2User?
     ): ResponseEntity<Map<String, Any>> {
-        val userId = principal?.attributes?.get("userId") as? Long 
-            ?: return ResponseEntity.status(401).body(mapOf("error" to "Unauthorized"))
+        val userId = extractUserId(principal) ?: return ResponseEntity.status(401).body(mapOf("error" to "Unauthorized"))
 
         val links = stravaUserLinksRepo.findByUserId(userId)
         val link = links.firstOrNull()
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "No linked Strava user found for current user"))
+
+        val after = from?.let { java.time.LocalDate.parse(it).atStartOfDay().toEpochSecond(java.time.ZoneOffset.UTC) }
+        val before = to?.let { java.time.LocalDate.parse(it).plusDays(1).atStartOfDay().toEpochSecond(java.time.ZoneOffset.UTC) }
 
         val activities = stravaApiClient.getAthleteActivities(userId, after, before, page, perPage)
         
@@ -49,8 +51,17 @@ class AdminSyncController(
         return ResponseEntity.ok(
             mapOf(
                 "enqueuedCount" to count,
-                "message" to "Enqueued $count activities for ingestion (page=$page, perPage=$perPage)"
+                "message" to "Enqueued $count activities for ingestion (from=${from ?: "all"}, to=${to ?: "now"})"
             )
         )
+    }
+
+    private fun extractUserId(principal: OAuth2User?): Long? {
+        val raw = principal?.attributes?.get("userId") ?: return null
+        return when (raw) {
+            is Number -> raw.toLong()
+            is String -> raw.toLongOrNull()
+            else -> null
+        }
     }
 }
