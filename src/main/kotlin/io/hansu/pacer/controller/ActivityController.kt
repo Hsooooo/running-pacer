@@ -21,7 +21,7 @@ class ActivityController(
         @PathVariable id: Long,
         @AuthenticationPrincipal principal: OAuth2User?
     ): ResponseEntity<ActivityDetail> {
-        val userId = principal?.attributes?.get("userId") as? Long ?: return ResponseEntity.status(401).build()
+        val userId = extractUserId(principal) ?: return ResponseEntity.status(401).build()
         val detail = queryService.getActivityDetail(userId, id) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(detail)
     }
@@ -31,11 +31,20 @@ class ActivityController(
         @PathVariable id: Long,
         @AuthenticationPrincipal principal: OAuth2User?
     ): ResponseEntity<String> {
-        val userId = principal?.attributes?.get("userId") as? Long ?: return ResponseEntity.status(401).build()
+        val userId = extractUserId(principal) ?: return ResponseEntity.status(401).build()
         val streams = queryService.getActivityStreams(userId, id) ?: return ResponseEntity.notFound().build()
         // streams is already JSON string
         return ResponseEntity.ok()
             .header("Content-Type", "application/json")
             .body(streams)
+    }
+
+    private fun extractUserId(principal: OAuth2User?): Long? {
+        val raw = principal?.attributes?.get("userId") ?: return null
+        return when (raw) {
+            is Number -> raw.toLong()
+            is String -> raw.toLongOrNull()
+            else -> null
+        }
     }
 }
