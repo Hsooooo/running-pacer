@@ -15,7 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
-    private val apiTokenFilter: ApiTokenFilter
+    private val apiTokenFilter: ApiTokenFilter,
+    private val mcpAuthenticationEntryPoint: McpAuthenticationEntryPoint
 ) {
 
     @Bean
@@ -31,6 +32,8 @@ class SecurityConfig(
                     .requestMatchers("/", "/error", "/favicon.ico").permitAll()
                     .requestMatchers("/oauth/**", "/login/**").permitAll()
                     .requestMatchers("/webhook/**").permitAll()
+                    // OAuth 메타데이터 엔드포인트는 공개
+                    .requestMatchers("/.well-known/**").permitAll()
                     // MCP 엔드포인트는 인증 필수 (JWT 또는 API 토큰)
                     .requestMatchers("/sse", "/mcp/**").authenticated()
                     .anyRequest().permitAll() // 개발 단계이므로 일단 열어둠
@@ -49,7 +52,9 @@ class SecurityConfig(
                     }
             }
             .oauth2ResourceServer { resourceServer ->
-                resourceServer.jwt {}
+                resourceServer
+                    .jwt {}
+                    .authenticationEntryPoint(mcpAuthenticationEntryPoint)
             }
 
         return http.build()

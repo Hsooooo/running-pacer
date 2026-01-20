@@ -44,6 +44,9 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
+app:
+  base-url: ${APP_BASE_URL:${OAUTH_ISSUER:http://localhost:8080}}
+
 oauth:
   issuer: ${OAUTH_ISSUER:http://localhost:8080}
   rsa:
