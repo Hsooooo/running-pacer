@@ -107,7 +107,7 @@ class AuthorizationServerConfig(
             if (OAuth2TokenType.ACCESS_TOKEN == context.tokenType) {
                 val userId = extractUserId(context.getPrincipal())
                 if (userId != null) {
-                    context.claims.claim("user_id", userId)
+                    context.claims.claim("user_id", userId.toString())
                 }
             }
         }

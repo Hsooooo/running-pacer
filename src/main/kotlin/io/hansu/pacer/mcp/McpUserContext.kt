@@ -23,9 +23,14 @@ class McpUserContext {
 
         // JWT 토큰 (OAuth2 Authorization Code Flow)
         if (principal is Jwt) {
-            val userId = principal.getClaim<Number>("user_id")
+            val userId = principal.getClaim<Any>("user_id")
                 ?: throw McpAuthenticationException("JWT에 user_id 클레임이 없습니다")
-            return userId.toLong()
+            
+            return when (userId) {
+                is Number -> userId.toLong()
+                is String -> userId.toLongOrNull() ?: throw McpAuthenticationException("JWT user_id 형식이 잘못되었습니다")
+                else -> throw McpAuthenticationException("JWT user_id 타입이 잘못되었습니다: ${userId::class.simpleName}")
+            }
         }
 
         // API 토큰 (ApiTokenFilter에서 설정한 OAuth2User)
