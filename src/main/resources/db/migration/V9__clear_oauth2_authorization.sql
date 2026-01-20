@@ -1,2 +1,1 @@
-V9__clear_oauth2_authorization.sql
 DELETE FROM oauth2_authorization;
