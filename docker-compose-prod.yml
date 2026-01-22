@@ -41,6 +41,12 @@ services:
       OAUTH_ISSUER: ${OAUTH_ISSUER}
       APP_BASE_URL: ${APP_BASE_URL}
     restart: unless-stopped
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-northeast-2
+        awslogs-group: /lightsail/auth-server
+        awslogs-stream-prefix: spring
 
 volumes:
   postgres_data:
