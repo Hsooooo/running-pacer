@@ -46,7 +46,8 @@ services:
       options:
         awslogs-region: ap-northeast-2
         awslogs-group: /lightsail/auth-server
-        awslogs-stream-prefix: spring
+        awslogs-create-group: "true"
+        tag: "{{.Name}}-{{.ID}}"
 
 volumes:
   postgres_data:
