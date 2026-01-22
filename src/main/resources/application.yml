@@ -61,3 +61,6 @@ strava:
   base-url: "https://www.strava.com"
   api-base-url: "https://www.strava.com/api/v3"
   redirect-uri: ${APP_BASE_URL}/oauth/strava/callback
+
+kma:
+  auth-key: ${KMA_AUTH_KEY:}

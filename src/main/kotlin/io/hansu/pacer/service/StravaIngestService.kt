@@ -8,6 +8,7 @@ import io.hansu.pacer.domain.activity.repository.ActivityStreamsRepository
 import io.hansu.pacer.domain.activity.repository.LapRepository
 import io.hansu.pacer.domain.raw.repository.RawStravaPayloadRepository
 import io.hansu.pacer.domain.stat.repository.DailyStatsRepository
+import io.hansu.pacer.util.KmaWeatherClient
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.*
@@ -19,7 +20,8 @@ class StravaIngestService(
     private val streamsRepo: ActivityStreamsRepository,
     private val dailyStatsRepo: DailyStatsRepository,
     private val rawRepo: RawStravaPayloadRepository,
-    private val aggService: RunningAggregationService
+    private val aggService: RunningAggregationService,
+    private val weatherClient: KmaWeatherClient
 ) {
     private val om = jacksonObjectMapper()
 
@@ -93,6 +95,23 @@ class StravaIngestService(
                     sampleCount = sampleCount
                 )
             )
+        }
+
+        // 4.5) Fetch and save weather data if available
+        try {
+            weatherClient.getUltraSrtForecast()?.let { weather ->
+                activityRepo.updateWeather(
+                    activityId = activity.id,
+                    temp = weather.temp,
+                    humidity = weather.humidity,
+                    windSpeed = weather.windSpeed,
+                    precipType = weather.precipType,
+                    sky = weather.sky
+                )
+            }
+        } catch (e: Exception) {
+            // Weather data is optional, don't fail the ingest
+            println("Warning: Failed to fetch weather data: ${e.message}")
         }
 
         // 5) 파생값/집계 생성 (핵심)

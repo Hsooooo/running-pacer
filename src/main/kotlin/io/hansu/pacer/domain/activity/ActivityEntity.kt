@@ -59,6 +59,21 @@ class ActivityEntity(
     @Column(name = "avg_pace_sec_per_km")
     val avgPaceSecPerKm: Int? = null,
 
+    @Column(name = "weather_temp")
+    val weatherTemp: Int? = null,
+
+    @Column(name = "weather_humidity")
+    val weatherHumidity: Int? = null,
+
+    @Column(name = "weather_wind_speed")
+    val weatherWindSpeed: Int? = null,
+
+    @Column(name = "weather_precip_type", length = 10)
+    val weatherPrecipType: String? = null,
+
+    @Column(name = "weather_sky", length = 10)
+    val weatherSky: String? = null,
+
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

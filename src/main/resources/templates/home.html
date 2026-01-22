@@ -259,13 +259,173 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Training Metrics (Expanded) -->
+                        <!-- Current VDOT Card -->
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Current VDOT</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">speed</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-white text-3xl font-bold leading-tight tracking-tight"><span
+                                        id="current-vdot">-</span></p>
+                                <p id="best-effort-info" class="text-xs text-text-secondary mt-2">Loading...</p>
+                            </div>
+                            <div id="training-paces" class="mt-3 space-y-1 hidden">
+                                <p class="text-xs text-text-secondary font-bold uppercase mb-2">Training Paces</p>
+                            </div>
+                        </div>
+
+                        <!-- Fitness Status Card -->
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Fitness Status</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">monitor_heart</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <div id="fitness-status-badge"
+                                    class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 w-fit mb-3">
+                                    <span id="fitness-status-text"
+                                        class="text-blue-400 text-sm font-bold">Loading</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div class="bg-background-dark rounded-lg p-2">
+                                        <p class="text-[10px] text-text-secondary font-bold">CTL</p>
+                                        <p id="ctl-value" class="text-white text-sm font-bold">-</p>
+                                    </div>
+                                    <div class="bg-background-dark rounded-lg p-2">
+                                        <p class="text-[10px] text-text-secondary font-bold">ATL</p>
+                                        <p id="atl-value" class="text-white text-sm font-bold">-</p>
+                                    </div>
+                                    <div class="bg-background-dark rounded-lg p-2">
+                                        <p class="text-[10px] text-text-secondary font-bold">TSB</p>
+                                        <p id="tsb-value" class="text-white text-sm font-bold">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Balance Card -->
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Training Balance</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">balance</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <div class="flex items-baseline gap-2">
+                                    <p id="balance-score"
+                                        class="text-white text-3xl font-bold leading-tight tracking-tight">-</p>
+                                    <span class="text-lg text-text-secondary font-medium">/100</span>
+                                </div>
+                                <div id="balance-badge"
+                                    class="flex items-center gap-1 mt-2 bg-blue-500/10 w-fit px-2 py-1 rounded text-blue-400">
+                                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                    <p id="balance-assessment" class="text-xs font-bold">-</p>
+                                </div>
+                                <p id="easy-hard-ratio" class="text-[10px] text-text-secondary mt-2">Easy/Hard: -</p>
+                            </div>
+                        </div>
+
+                        <!-- Weather & Running Index Section -->
+                        <!-- Current Running Index Card -->
+                        <div
+                            class="md:col-span-2 flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Running Index</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">cloud</span>
+                                </div>
+                            </div>
+                            <div class="mt-2" id="weather-card">
+                                <div id="weather-loading" class="text-text-secondary text-sm">Loading weather...</div>
+                                <div id="weather-content" class="hidden">
+                                    <div class="flex items-baseline gap-2">
+                                        <p id="running-score"
+                                            class="text-white text-4xl font-bold leading-tight tracking-tight">-</p>
+                                        <span class="text-lg text-text-secondary font-medium">/100</span>
+                                    </div>
+                                    <div id="running-rating-badge"
+                                        class="flex items-center gap-1 mt-2 bg-green-500/10 w-fit px-2 py-1 rounded text-green-400">
+                                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                        <p id="running-rating" class="text-xs font-bold">-</p>
+                                    </div>
+                                    <p id="weather-advice" class="text-sm text-text-secondary mt-3"></p>
+                                    <div class="grid grid-cols-4 gap-2 mt-4 text-center">
+                                        <div class="bg-background-dark rounded-lg p-2">
+                                            <p class="text-[10px] text-text-secondary font-bold">TEMP</p>
+                                            <p id="weather-temp" class="text-white text-sm font-bold">-°C</p>
+                                        </div>
+                                        <div class="bg-background-dark rounded-lg p-2">
+                                            <p class="text-[10px] text-text-secondary font-bold">HUMID</p>
+                                            <p id="weather-humidity" class="text-white text-sm font-bold">-%</p>
+                                        </div>
+                                        <div class="bg-background-dark rounded-lg p-2">
+                                            <p class="text-[10px] text-text-secondary font-bold">WIND</p>
+                                            <p id="weather-wind" class="text-white text-sm font-bold">-m/s</p>
+                                        </div>
+                                        <div class="bg-background-dark rounded-lg p-2">
+                                            <p class="text-[10px] text-text-secondary font-bold">SKY</p>
+                                            <p id="weather-sky" class="text-white text-sm font-bold">-</p>
+                                        </div>
+                                    </div>
+                                    <div id="weather-warnings" class="mt-3 space-y-1"></div>
+                                </div>
+                                <div id="weather-unavailable" class="hidden text-text-secondary text-sm">
+                                    <p>Weather data unavailable.</p>
+                                    <p class="text-xs mt-1">Set KMA_API_KEY to enable.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hourly Forecast Card -->
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Best Time to Run</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">schedule</span>
+                                </div>
+                            </div>
+                            <div class="mt-2" id="hourly-card">
+                                <div id="hourly-loading" class="text-text-secondary text-sm">Loading forecast...</div>
+                                <div id="hourly-content" class="hidden">
+                                    <p id="best-time-recommendation" class="text-white text-sm font-medium mb-4"></p>
+                                    <div id="hourly-scores" class="flex gap-1 overflow-x-auto pb-2">
+                                        <!-- Hourly bars will be injected here -->
+                                    </div>
+                                </div>
+                                <div id="hourly-unavailable" class="hidden text-text-secondary text-sm">
+                                    <p>Hourly forecast unavailable.</p>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     <!-- Chart & Activities Section -->
-                    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[400px]">
+                    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <!-- Activity Detail Chart -->
                         <div id="detail-view"
-                            class="lg:col-span-2 rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col justify-between shadow-subtle"
+                            class="lg:col-span-2 min-h-[450px] rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col justify-between shadow-subtle"
                             style="display: none;">
                             <div class="flex justify-between items-center mb-6">
                                 <div>
@@ -312,7 +472,7 @@
 
                         <!-- Empty State -->
                         <div id="empty-view"
-                            class="lg:col-span-2 rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col items-center justify-center shadow-subtle text-center">
+                            class="lg:col-span-2 min-h-[450px] rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col items-center justify-center shadow-subtle text-center">
                             <div
                                 class="w-16 h-16 rounded-full bg-surface-highlight flex items-center justify-center mb-4">
                                 <span class="material-symbols-outlined text-primary text-3xl">touch_app</span>
@@ -324,7 +484,7 @@
 
                         <!-- Recent Activities -->
                         <div
-                            class="lg:col-span-1 rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col gap-5 shadow-subtle">
+                            class="lg:col-span-1 h-full rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col gap-5 shadow-subtle">
                             <div class="flex justify-between items-center">
                                 <h3 class="text-white text-lg font-bold">Recent Runs</h3>
                                 <a href="/activities"
@@ -374,7 +534,7 @@
                     </section>
 
                     <!-- Bottom Section: API Tokens & Anomalies -->
-                    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Anomalies Count -->
                         <div
                             class="bg-surface-dark rounded-xl p-5 border border-white/5 shadow-subtle flex flex-col items-center justify-between relative overflow-hidden">
@@ -391,7 +551,7 @@
                         </div>
 
                         <!-- API Tokens -->
-                        <div class="lg:col-span-2 bg-surface-dark rounded-xl p-5 border border-white/5 shadow-subtle">
+                        <div class="bg-surface-dark rounded-xl p-5 border border-white/5 shadow-subtle">
                             <div class="flex justify-between items-center mb-4">
                                 <h4 class="text-text-secondary text-xs font-bold uppercase tracking-wider">API Tokens
                                 </h4>
@@ -524,6 +684,7 @@
                 if (!res.ok) return;
                 const data = await res.json();
                 renderDashboard(data);
+                loadWeather();
             } catch (e) { console.error('Failed to load dashboard', e); }
         }
 
@@ -553,6 +714,189 @@
             if (data.trend.dataPoints && data.trend.dataPoints.length > 0) {
                 renderSparkline('trendChart', data.trend.dataPoints.map(p => p.value), '#FFB300');
             }
+
+            // Render new training metrics
+            renderTrainingMetrics(data);
+        }
+
+        function renderTrainingMetrics(data) {
+            // VDOT Card
+            if (data.currentVdot) {
+                document.getElementById('current-vdot').innerText = data.currentVdot.toFixed(1);
+
+                if (data.bestEfforts && data.bestEfforts.length > 0) {
+                    const best = data.bestEfforts[0];
+                    document.getElementById('best-effort-info').innerText = `Based on ${best.distanceType} (${formatTime(best.timeSeconds)})`;
+                } else {
+                    document.getElementById('best-effort-info').innerText = 'Estimated from recent runs';
+                }
+
+                // Training paces
+                if (data.trainingPaces) {
+                    const pacesEl = document.getElementById('training-paces');
+                    pacesEl.classList.remove('hidden');
+                    const paceOrder = ['EASY', 'MARATHON', 'THRESHOLD', 'INTERVAL', 'REPETITION'];
+                    paceOrder.forEach(type => {
+                        if (data.trainingPaces[type]) {
+                            const paceDiv = document.createElement('div');
+                            paceDiv.className = 'flex justify-between text-xs';
+                            paceDiv.innerHTML = `<span class="text-text-secondary">${type}</span><span class="text-primary font-bold">${data.trainingPaces[type]}</span>`;
+                            pacesEl.appendChild(paceDiv);
+                        }
+                    });
+                }
+            } else {
+                document.getElementById('best-effort-info').innerText = 'No data yet';
+            }
+
+            // Fitness Status Card
+            if (data.fitnessStatus) {
+                const fs = data.fitnessStatus;
+                document.getElementById('ctl-value').innerText = fs.ctl.toFixed(1);
+                document.getElementById('atl-value').innerText = fs.atl.toFixed(1);
+                document.getElementById('tsb-value').innerText = fs.tsb.toFixed(1);
+
+                const statusText = document.getElementById('fitness-status-text');
+                const statusBadge = document.getElementById('fitness-status-badge');
+                statusText.innerText = fs.status;
+
+                const statusColors = {
+                    'Rested': 'bg-cyan-500/10 text-cyan-400',
+                    'Fresh': 'bg-green-500/10 text-green-400',
+                    'Productive': 'bg-blue-500/10 text-blue-400',
+                    'Tired': 'bg-yellow-500/10 text-yellow-400',
+                    'Overreached': 'bg-red-500/10 text-red-400'
+                };
+                const colorClass = statusColors[fs.status] || 'bg-blue-500/10 text-blue-400';
+                statusBadge.className = `flex items-center gap-2 px-3 py-1.5 rounded-full ${colorClass} w-fit mb-3`;
+            } else {
+                document.getElementById('fitness-status-text').innerText = 'No data';
+            }
+
+            // Training Balance Card
+            if (data.workoutDistribution) {
+                const wd = data.workoutDistribution;
+                document.getElementById('balance-score').innerText = wd.balanceScore;
+                document.getElementById('balance-assessment').innerText = wd.balanceAssessment;
+                document.getElementById('easy-hard-ratio').innerText = `Easy/Hard: ${wd.easyHardRatio}`;
+
+                const balanceBadge = document.getElementById('balance-badge');
+                if (wd.balanceScore >= 75) {
+                    balanceBadge.className = 'flex items-center gap-1 mt-2 bg-green-500/10 w-fit px-2 py-1 rounded text-green-400';
+                } else if (wd.balanceScore >= 50) {
+                    balanceBadge.className = 'flex items-center gap-1 mt-2 bg-yellow-500/10 w-fit px-2 py-1 rounded text-yellow-400';
+                } else {
+                    balanceBadge.className = 'flex items-center gap-1 mt-2 bg-red-500/10 w-fit px-2 py-1 rounded text-red-400';
+                }
+            }
+        }
+
+        async function loadWeather() {
+            try {
+                const res = await fetch('/api/dashboard/weather');
+                if (!res.ok) {
+                    showWeatherUnavailable();
+                    return;
+                }
+                const data = await res.json();
+                renderWeather(data);
+            } catch (e) {
+                console.error('Failed to load weather', e);
+                showWeatherUnavailable();
+            }
+        }
+
+        function showWeatherUnavailable() {
+            document.getElementById('weather-loading').classList.add('hidden');
+            document.getElementById('weather-unavailable').classList.remove('hidden');
+            document.getElementById('hourly-loading').classList.add('hidden');
+            document.getElementById('hourly-unavailable').classList.remove('hidden');
+        }
+
+        function renderWeather(data) {
+            // Current weather
+            if (data.current) {
+                const c = data.current;
+                document.getElementById('weather-loading').classList.add('hidden');
+                document.getElementById('weather-content').classList.remove('hidden');
+
+                document.getElementById('running-score').innerText = c.score;
+                document.getElementById('running-rating').innerText = c.rating;
+                document.getElementById('weather-advice').innerText = c.advice;
+
+                const w = c.weather;
+                document.getElementById('weather-temp').innerText = w.temp != null ? w.temp + '°C' : '-';
+                document.getElementById('weather-humidity').innerText = w.humidity != null ? w.humidity + '%' : '-';
+                document.getElementById('weather-wind').innerText = w.windSpeed != null ? w.windSpeed.toFixed(1) + 'm/s' : '-';
+
+                const skyKorean = { 'CLEAR': '맑음', 'PARTLY_CLOUDY': '구름조금', 'CLOUDY': '흐림' };
+                document.getElementById('weather-sky').innerText = skyKorean[w.sky] || w.sky;
+
+                // Rating badge colors
+                const ratingBadge = document.getElementById('running-rating-badge');
+                const ratingColors = {
+                    'EXCELLENT': 'bg-green-500/10 text-green-400',
+                    'GOOD': 'bg-blue-500/10 text-blue-400',
+                    'FAIR': 'bg-yellow-500/10 text-yellow-400',
+                    'POOR': 'bg-orange-500/10 text-orange-400',
+                    'BAD': 'bg-red-500/10 text-red-400'
+                };
+                ratingBadge.className = `flex items-center gap-1 mt-2 w-fit px-2 py-1 rounded ${ratingColors[c.rating] || ratingColors['FAIR']}`;
+
+                // Warnings
+                const warningsEl = document.getElementById('weather-warnings');
+                warningsEl.innerHTML = '';
+                if (c.warnings && c.warnings.length > 0) {
+                    c.warnings.forEach(w => {
+                        const div = document.createElement('div');
+                        div.className = 'text-xs text-yellow-400 bg-yellow-500/10 px-2 py-1 rounded';
+                        div.innerText = w;
+                        warningsEl.appendChild(div);
+                    });
+                }
+            } else {
+                document.getElementById('weather-loading').classList.add('hidden');
+                document.getElementById('weather-unavailable').classList.remove('hidden');
+            }
+
+            // Hourly forecast
+            if (data.hourly && data.hourly.hourlyScores && data.hourly.hourlyScores.length > 0) {
+                document.getElementById('hourly-loading').classList.add('hidden');
+                document.getElementById('hourly-content').classList.remove('hidden');
+
+                document.getElementById('best-time-recommendation').innerText = data.hourly.recommendation;
+
+                const container = document.getElementById('hourly-scores');
+                container.innerHTML = '';
+
+                data.hourly.hourlyScores.forEach(h => {
+                    const bar = document.createElement('div');
+                    bar.className = 'flex flex-col items-center min-w-[40px]';
+
+                    const scoreColor = h.score >= 80 ? 'bg-green-500' : h.score >= 60 ? 'bg-blue-500' : h.score >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+                    const barHeight = Math.max(20, h.score * 0.6);
+
+                    bar.innerHTML = `
+                        <div class="text-[10px] text-text-secondary mb-1">${h.score}</div>
+                        <div class="${scoreColor} w-6 rounded-t" style="height: ${barHeight}px"></div>
+                        <div class="text-[10px] text-text-secondary mt-1">${h.hour}시</div>
+                    `;
+                    container.appendChild(bar);
+                });
+            } else {
+                document.getElementById('hourly-loading').classList.add('hidden');
+                document.getElementById('hourly-unavailable').classList.remove('hidden');
+            }
+        }
+
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
         function renderSparkline(canvasId, data, color) {

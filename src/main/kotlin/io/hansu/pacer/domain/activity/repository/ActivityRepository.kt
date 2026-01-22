@@ -87,4 +87,26 @@ class ActivityRepository(
     fun updateAvgPace(activityId: Long, avgPace: Int) {
         jpa.updateAvgPace(activityId, avgPace)
     }
+
+    @Transactional
+    fun updateWeather(activityId: Long, temp: Int?, humidity: Int?, windSpeed: Int?, precipType: String?, sky: String?) {
+        val sql = """
+            update activities set
+                weather_temp = :temp,
+                weather_humidity = :humidity,
+                weather_wind_speed = :windSpeed,
+                weather_precip_type = :precipType,
+                weather_sky = :sky,
+                updated_at = current_timestamp
+            where activity_id = :activityId
+        """.trimIndent()
+        jdbc.update(sql, mapOf(
+            "activityId" to activityId,
+            "temp" to temp,
+            "humidity" to humidity,
+            "windSpeed" to windSpeed,
+            "precipType" to precipType,
+            "sky" to sky
+        ))
+    }
 }
