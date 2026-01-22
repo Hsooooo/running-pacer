@@ -43,6 +43,8 @@ class SecurityConfig(
             .addFilterBefore(apiTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
             .oauth2Login { oauth2 ->
                 oauth2
+                    .loginPage("/login")
+                    .defaultSuccessUrl("/", true)
                     .authorizationEndpoint {
                         it.baseUri("/oauth2/authorization")
                     }

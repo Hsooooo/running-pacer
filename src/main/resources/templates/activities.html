@@ -1,131 +1,311 @@
+<!DOCTYPE html>
+<html class="dark" lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Running Pacer - Activities</title>
+    <meta name="description" content="View and analyze your running activities" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFB300",
+                        "primary-hover": "#FFCA28",
+                        "secondary": "#38BDF8",
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#0B1120",
+                        "surface-dark": "#162032",
+                        "surface-light": "#ffffff",
+                        "border-dark": "#2A3649",
+                        "border-light": "#E2E8F0",
+                        "text-primary-dark": "#FFFFFF",
+                        "text-secondary-dark": "#94A3B8",
+                        "text-primary-light": "#0F172A",
+                        "text-secondary-light": "#64748b",
+                        "zone-1": "#94a3b8",
+                        "zone-2": "#38bdf8",
+                        "zone-3": "#4ade80",
+                        "zone-4": "#fbbf24",
+                        "zone-5": "#f87171",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Lexend", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 2rem; color: #1d1d1f; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        
-        .btn { display: inline-block; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; cursor: pointer; border: 1px solid #d2d2d7; background: white; color: #1d1d1f; }
-        .btn:hover { background: #f5f5f7; }
-        .btn-primary { background: #0071e3; color: white; border: none; }
-        .btn-primary:hover { background: #0077ed; }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
 
-        .filter-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end; }
-        .form-group { display: flex; flex-direction: column; gap: 4px; }
-        label { font-size: 0.85rem; color: #86868b; font-weight: 500; }
-        input[type="date"] { padding: 8px; border: 1px solid #d2d2d7; border-radius: 8px; font-family: inherit; }
+        ::-webkit-scrollbar-track {
+            background: #0B1120;
+        }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; border-bottom: 1px solid #d2d2d7; color: #86868b; font-size: 0.85rem; text-transform: uppercase; }
-        td { padding: 16px 12px; border-bottom: 1px solid #f5f5f7; }
-        tr:hover td { background: #fafafa; cursor: pointer; }
-        
-        .pagination { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; align-items: center; }
+        ::-webkit-scrollbar-thumb {
+            background: #1e2942;
+            border-radius: 4px;
+        }
 
-        /* Detail Section */
-        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .stat-box { background: #f9f9fa; padding: 1rem; border-radius: 8px; text-align: center; }
-        .stat-label { font-size: 0.75rem; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
-        .stat-unit { font-size: 0.85rem; color: #86868b; font-weight: 400; }
-        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 2rem; }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFB300;
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-text-primary-light dark:text-text-primary-dark overflow-x-hidden min-h-screen flex flex-col transition-colors duration-200">
+    <!-- Header -->
+    <header
+        class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-6 py-3 bg-surface-light dark:bg-surface-dark sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <a href="/" class="flex items-center gap-3">
+                <div class="size-9 text-primary flex items-center justify-center">
+                    <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M13.5 5.5C13.5 6.32843 12.8284 7 12 7C11.1716 7 10.5 6.32843 10.5 5.5C10.5 4.67157 11.1716 4 12 4C12.8284 4 13.5 4.67157 13.5 5.5Z"
+                            fill="currentColor"></path>
+                        <path clip-rule="evenodd"
+                            d="M16.5303 9.53033C16.8232 9.23744 16.8232 8.76256 16.5303 8.46967C16.2374 8.17678 15.7626 8.17678 15.4697 8.46967L12.75 11.1893V9.75C12.75 9.33579 12.4142 9 12 9C11.5858 9 11.25 9.33579 11.25 9.75V12.25C11.25 12.4489 11.329 12.6397 11.4697 12.7803L13.9697 15.2803C14.2626 15.5732 14.7374 15.5732 15.0303 15.2803C15.3232 14.9874 15.3232 14.5126 15.0303 14.2197L13.3107 12.5H16.5C19.5376 12.5 22 14.9624 22 18V20C22 20.4142 21.6642 20.75 21.25 20.75C20.8358 20.75 20.5 20.4142 20.5 20V18C20.5 15.7909 18.7091 14 16.5 14H15.8107L16.5303 9.53033ZM5.5 11C5.5 9.61929 6.61929 8.5 8 8.5C9.38071 8.5 10.5 9.61929 10.5 11V16.5C10.5 16.9142 10.1642 17.25 9.75 17.25C9.33579 17.25 9 16.9142 9 16.5V11C9 10.4477 8.55228 10 8 10C7.44772 10 7 10.4477 7 11V18.5C7 19.3284 6.32843 20 5.5 20C4.67157 20 4 19.3284 4 18.5V13.75C2.89543 13.75 2 12.8546 2 11.75C2 10.6454 2.89543 9.75 4 9.75V8.5C4 7.23438 4.6015 6.09642 5.53982 5.34005C5.86241 5.08006 6.33647 5.12899 6.59646 5.45158C6.85645 5.77417 6.80753 6.24823 6.48493 6.50822C5.87222 7.00207 5.5 7.72379 5.5 8.5V11Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h2
+                    class="text-text-primary-light dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">
+                    RunTrack <span class="text-primary">Pacer</span>
+                </h2>
+            </a>
+        </div>
+        <div class="hidden md:flex flex-1 justify-center gap-8 px-8">
+            <a class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium hover:text-primary transition-colors"
+                href="/">Dashboard</a>
+            <a class="text-primary text-sm font-bold border-b-2 border-primary pb-0.5" href="/activities">Activities</a>
+            <span
+                class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium opacity-50 cursor-not-allowed"
+                title="준비 중">Training</span>
+            <span
+                class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium opacity-50 cursor-not-allowed"
+                title="준비 중">Reports</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="/"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-dark border border-border-dark text-white text-sm font-medium hover:border-primary transition-colors">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                Dashboard
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+        <!-- Page Header -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <h1>Activities</h1>
-                <p style="margin: 0; color: #86868b;">Explore your running history</p>
+                <h1
+                    class="text-text-primary-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                    Activities History
+                </h1>
+                <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm mt-1">Detailed performance
+                    metrics for your sessions.</p>
             </div>
-            <a href="/" class="btn">Back to Dashboard</a>
+            <button disabled
+                class="group flex cursor-not-allowed items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-5 bg-primary/50 text-[#0f172a]/50 text-sm font-bold leading-normal tracking-[0.015em] transition-all"
+                title="준비 중">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>Log Run</span>
+            </button>
         </div>
 
-        <div id="detail-card" class="card" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
-                <h2 id="detail-title" style="margin:0">Activity Details</h2>
-                <button onclick="closeDetail()" class="btn" style="padding: 4px 10px;">Close</button>
+        <!-- Activity Detail Card (Hidden by default) -->
+        <div id="detail-card"
+            class="rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark p-6 shadow-lg"
+            style="display: none;">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 id="detail-title" class="text-white text-xl font-bold">Activity Details</h2>
+                    <p class="text-text-secondary-dark text-sm mt-1">Pace & Heart Rate Analysis</p>
+                </div>
+                <button onclick="closeDetail()"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background-dark border border-border-dark text-text-secondary-dark hover:text-white hover:border-primary transition-colors text-sm">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                    Close
+                </button>
             </div>
-            
-            <div class="detail-grid">
-                <div class="stat-box">
-                    <div class="stat-label">Distance</div>
-                    <div class="stat-value" id="detail-dist">0.0</div>
-                    <div class="stat-unit">km</div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-background-dark rounded-lg p-4 text-center">
+                    <p class="text-text-secondary-dark text-xs font-bold uppercase tracking-wider mb-1">Distance</p>
+                    <p class="text-white text-2xl font-bold"><span id="detail-dist">0.0</span><span
+                            class="text-sm text-text-secondary-dark ml-1">km</span></p>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Time</div>
-                    <div class="stat-value" id="detail-time">00:00</div>
-                    <div class="stat-unit">duration</div>
+                <div class="bg-background-dark rounded-lg p-4 text-center">
+                    <p class="text-text-secondary-dark text-xs font-bold uppercase tracking-wider mb-1">Time</p>
+                    <p id="detail-time" class="text-white text-2xl font-bold">00:00</p>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Avg Pace</div>
-                    <div class="stat-value" id="detail-pace">0:00</div>
-                    <div class="stat-unit">/km</div>
+                <div class="bg-background-dark rounded-lg p-4 text-center">
+                    <p class="text-text-secondary-dark text-xs font-bold uppercase tracking-wider mb-1">Avg Pace</p>
+                    <p class="text-primary text-2xl font-bold"><span id="detail-pace">0:00</span><span
+                            class="text-sm text-text-secondary-dark ml-1">/km</span></p>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Avg HR</div>
-                    <div class="stat-value" id="detail-hr">-</div>
-                    <div class="stat-unit">bpm</div>
+                <div class="bg-background-dark rounded-lg p-4 text-center">
+                    <p class="text-text-secondary-dark text-xs font-bold uppercase tracking-wider mb-1">Avg HR</p>
+                    <p class="text-white text-2xl font-bold"><span id="detail-hr">-</span><span
+                            class="text-sm text-text-secondary-dark ml-1">bpm</span></p>
                 </div>
             </div>
 
-            <div class="chart-container">
+            <!-- Chart -->
+            <div class="h-[300px]">
                 <canvas id="activityChart"></canvas>
             </div>
         </div>
 
-        <div class="card">
-            <form method="get" class="filter-bar">
-                <div class="form-group">
-                    <label>From</label>
-                    <input type="date" name="from" th:value="${fromDate}">
-                </div>
-                <div class="form-group">
-                    <label>To</label>
-                    <input type="date" name="to" th:value="${toDate}">
-                </div>
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </div>
-            </form>
+        <!-- Filter & Table Section -->
+        <div
+            class="rounded-xl border border-border-light dark:border-border-dark overflow-hidden bg-surface-light dark:bg-surface-dark shadow-lg">
+            <!-- Filter Bar -->
+            <div
+                class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-4 border-b border-border-dark">
+                <form method="get" class="flex flex-wrap gap-3 items-end">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-text-secondary-dark text-xs font-medium">From</label>
+                        <input type="date" name="from" th:value="${fromDate}"
+                            class="h-10 px-3 bg-background-dark border border-border-dark rounded-lg text-white text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-text-secondary-dark text-xs font-medium">To</label>
+                        <input type="date" name="to" th:value="${toDate}"
+                            class="h-10 px-3 bg-background-dark border border-border-dark rounded-lg text-white text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                    </div>
+                    <button type="submit"
+                        class="h-10 px-5 bg-primary hover:bg-primary-hover text-background-dark font-bold text-sm rounded-lg transition-colors shadow-lg shadow-primary/20">
+                        Filter
+                    </button>
+                </form>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Distance</th>
-                        <th>Time</th>
-                        <th>Avg Pace</th>
-                        <th>Avg HR</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="act : ${activities}" th:onclick="'loadActivity(' + ${act.activityId} + ')'">
-                        <td th:text="${act.date}">2023-10-25</td>
-                        <td th:text="${#numbers.formatDecimal(act.distanceM / 1000.0, 1, 2) + ' km'}">5.00 km</td>
-                        <td th:text="${act.movingTimeS / 60} + ':' + ${#numbers.formatInteger(act.movingTimeS % 60, 2)}">25:00</td>
-                        <td>
-                            <span th:if="${act.avgPaceSecPerKm != null}" th:text="${act.avgPaceSecPerKm / 60} + ':' + ${#numbers.formatInteger(act.avgPaceSecPerKm % 60, 2)} + '/km'">5:00/km</span>
-                            <span th:if="${act.avgPaceSecPerKm == null}">-</span>
-                        </td>
-                        <td th:text="${act.avgHr != null ? act.avgHr + ' bpm' : '-'}">150 bpm</td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(activities)}">
-                        <td colspan="5" style="text-align: center; color: #86868b; padding: 3rem;">No activities found in this period.</td>
-                    </tr>
-                </tbody>
-            </table>
+                <!-- Disabled Filters -->
+                <div class="flex gap-2">
+                    <button disabled
+                        class="flex items-center gap-2 px-3 py-2 bg-surface-dark border border-border-dark rounded-lg text-sm font-medium text-text-secondary-dark opacity-50 cursor-not-allowed"
+                        title="준비 중">
+                        <span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        <span>Type: All</span>
+                    </button>
+                    <button disabled
+                        class="flex items-center gap-2 px-3 py-2 bg-surface-dark border border-border-dark rounded-lg text-sm font-medium text-text-secondary-dark opacity-50 cursor-not-allowed"
+                        title="준비 중">
+                        <span class="material-symbols-outlined text-[18px]">terrain</span>
+                        <span>Terrain</span>
+                    </button>
+                </div>
+            </div>
 
-            <div class="pagination" th:if="${not #lists.isEmpty(activities)}">
-                <a th:if="${currentPage > 1}" th:href="@{/activities(page=${currentPage - 1}, from=${fromDate}, to=${toDate})}" class="btn">Previous</a>
-                <span th:text="'Page ' + ${currentPage}">Page 1</span>
-                <a th:href="@{/activities(page=${currentPage + 1}, from=${fromDate}, to=${toDate})}" class="btn">Next</a>
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-border-light dark:border-border-dark bg-[#f8fafc] dark:bg-[#0f172a]">
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                                Date</th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                                Distance</th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                                Time</th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                                Avg Pace</th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                                Avg HR</th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-light dark:divide-border-dark">
+                        <tr th:each="act : ${activities}" th:onclick="'loadActivity(' + ${act.activityId} + ')'"
+                            class="group hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors cursor-pointer">
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white">
+                                <span class="font-bold" th:text="${act.date}">Oct 24, 2023</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white font-mono font-medium"
+                                th:text="${#numbers.formatDecimal(act.distanceM / 1000.0, 1, 2) + ' km'}">5.00 km</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white font-mono font-medium"
+                                th:text="${act.movingTimeS / 60} + ':' + ${#numbers.formatInteger(act.movingTimeS % 60, 2)}">
+                                25:00</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-primary font-black font-mono">
+                                <span th:if="${act.avgPaceSecPerKm != null}"
+                                    th:text="${act.avgPaceSecPerKm / 60} + ':' + ${#numbers.formatInteger(act.avgPaceSecPerKm % 60, 2)} + '/km'">5:00/km</span>
+                                <span th:if="${act.avgPaceSecPerKm == null}" class="text-text-secondary-dark">-</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white font-mono">
+                                <span th:if="${act.avgHr != null}">
+                                    <span th:text="${act.avgHr}">150</span>
+                                    <span class="text-xs text-text-secondary-dark">bpm</span>
+                                </span>
+                                <span th:if="${act.avgHr == null}" class="text-text-secondary-dark">-</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap text-right">
+                                <button
+                                    class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(activities)}">
+                            <td colspan="6" class="text-center text-text-secondary-dark py-16">
+                                <span class="material-symbols-outlined text-4xl mb-2 block">directions_run</span>
+                                <p class="font-medium">No activities found in this period.</p>
+                                <p class="text-sm mt-1">Try adjusting your date range.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${not #lists.isEmpty(activities)}"
+                class="border-t border-border-light dark:border-border-dark px-4 py-3 flex items-center justify-between bg-surface-light dark:bg-surface-dark">
+                <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    Page <span class="font-bold text-text-primary-light dark:text-white"
+                        th:text="${currentPage}">1</span>
+                </div>
+                <div class="flex gap-2">
+                    <a th:if="${currentPage > 1}"
+                        th:href="@{/activities(page=${currentPage - 1}, from=${fromDate}, to=${toDate})}"
+                        class="px-3 py-1 text-sm rounded-md bg-surface-dark border border-border-dark text-white hover:border-primary transition-colors font-medium">
+                        Previous
+                    </a>
+                    <button th:if="${currentPage <= 1}" disabled
+                        class="px-3 py-1 text-sm rounded-md bg-surface-dark text-text-secondary-dark opacity-50 cursor-not-allowed font-medium">
+                        Previous
+                    </button>
+                    <a th:href="@{/activities(page=${currentPage + 1}, from=${fromDate}, to=${toDate})}"
+                        class="px-3 py-1 text-sm rounded-md bg-surface-dark border border-border-dark text-white hover:border-primary transition-colors font-medium">
+                        Next
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
         let myChart = null;
@@ -144,7 +324,7 @@
                     const streams = await streamsRes.json();
                     renderChart(streams);
                 } else {
-                    if(myChart) myChart.destroy();
+                    if (myChart) myChart.destroy();
                 }
             } catch (e) {
                 console.error(e);
@@ -157,13 +337,13 @@
         }
 
         function renderDetail(d) {
-            document.getElementById('detail-title').innerText = `${d.date} • ${d.startTime} • ${d.sportType}`;
+            document.getElementById('detail-title').innerText = `${d.date} • ${d.startTime} • ${d.sportType || 'Run'}`;
             document.getElementById('detail-dist').innerText = (d.distanceM / 1000.0).toFixed(2);
-            
+
             const min = Math.floor(d.movingTimeS / 60);
             const sec = d.movingTimeS % 60;
             document.getElementById('detail-time').innerText = `${min}:${sec.toString().padStart(2, '0')}`;
-            
+
             if (d.avgPaceSecPerKm) {
                 const pMin = Math.floor(d.avgPaceSecPerKm / 60);
                 const pSec = d.avgPaceSecPerKm % 60;
@@ -171,7 +351,7 @@
             } else {
                 document.getElementById('detail-pace').innerText = "-";
             }
-            
+
             document.getElementById('detail-hr').innerText = d.avgHr || "-";
         }
 
@@ -181,8 +361,8 @@
 
             const distData = streams.distance?.data || [];
             const hrData = streams.heartrate?.data || [];
-            const paceData = (streams.velocity_smooth?.data || []).map(v => v > 0 ? (1000/v)/60 : null);
-            const labels = distData.map(d => (d/1000).toFixed(1));
+            const paceData = (streams.velocity_smooth?.data || []).map(v => v > 0 ? (1000 / v) / 60 : null);
+            const labels = distData.map(d => (d / 1000).toFixed(1));
 
             myChart = new Chart(ctx, {
                 type: 'line',
@@ -201,8 +381,8 @@
                         {
                             label: 'Pace (min/km)',
                             data: paceData,
-                            borderColor: '#2196f3',
-                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            borderColor: '#FFB300',
+                            backgroundColor: 'rgba(255, 179, 0, 0.1)',
                             yAxisID: 'y1',
                             tension: 0.4,
                             pointRadius: 0,
@@ -214,14 +394,36 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#94a3b8' }
+                        }
+                    },
                     scales: {
                         x: { display: false },
-                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'BPM' } },
-                        y1: { type: 'linear', display: true, position: 'right', reverse: true, title: { display: true, text: 'Pace' }, grid: { drawOnChartArea: false } }
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'BPM', color: '#94a3b8' },
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            reverse: true,
+                            title: { display: true, text: 'Pace', color: '#94a3b8' },
+                            ticks: { color: '#94a3b8' },
+                            grid: { drawOnChartArea: false }
+                        }
                     }
                 }
             });
         }
     </script>
 </body>
+
 </html>

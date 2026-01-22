@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Detailed Activity Insights List</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFB300", // Vivid Amber
+                        "primary-hover": "#FFCA28",
+                        "secondary": "#38BDF8", // Light Blue for accents
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#0B1120", // Midnight Navy
+                        "surface-dark": "#162032", // Lighter Navy
+                        "surface-light": "#ffffff",
+                        "border-dark": "#2A3649",
+                        "border-light": "#E2E8F0",
+                        "text-primary-dark": "#FFFFFF",
+                        "text-secondary-dark": "#94A3B8",
+                        "text-primary-light": "#0F172A",
+                        "text-secondary-light": "#64748b",
+                        "zone-1": "#94a3b8",
+                        "zone-2": "#38bdf8",
+                        "zone-3": "#4ade80",
+                        "zone-4": "#fbbf24",
+                        "zone-5": "#f87171",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Lexend", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-text-primary-light dark:text-text-primary-dark overflow-x-hidden min-h-screen flex flex-col transition-colors duration-200">
+    <header
+        class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-6 py-3 bg-surface-light dark:bg-surface-dark sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="size-9 text-primary flex items-center justify-center">
+                <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M13.5 5.5C13.5 6.32843 12.8284 7 12 7C11.1716 7 10.5 6.32843 10.5 5.5C10.5 4.67157 11.1716 4 12 4C12.8284 4 13.5 4.67157 13.5 5.5Z"
+                        fill="currentColor"></path>
+                    <path clip-rule="evenodd"
+                        d="M16.5303 9.53033C16.8232 9.23744 16.8232 8.76256 16.5303 8.46967C16.2374 8.17678 15.7626 8.17678 15.4697 8.46967L12.75 11.1893V9.75C12.75 9.33579 12.4142 9 12 9C11.5858 9 11.25 9.33579 11.25 9.75V12.25C11.25 12.4489 11.329 12.6397 11.4697 12.7803L13.9697 15.2803C14.2626 15.5732 14.7374 15.5732 15.0303 15.2803C15.3232 14.9874 15.3232 14.5126 15.0303 14.2197L13.3107 12.5H16.5C19.5376 12.5 22 14.9624 22 18V20C22 20.4142 21.6642 20.75 21.25 20.75C20.8358 20.75 20.5 20.4142 20.5 20V18C20.5 15.7909 18.7091 14 16.5 14H15.8107L16.5303 9.53033ZM5.5 11C5.5 9.61929 6.61929 8.5 8 8.5C9.38071 8.5 10.5 9.61929 10.5 11V16.5C10.5 16.9142 10.1642 17.25 9.75 17.25C9.33579 17.25 9 16.9142 9 16.5V11C9 10.4477 8.55228 10 8 10C7.44772 10 7 10.4477 7 11V18.5C7 19.3284 6.32843 20 5.5 20C4.67157 20 4 19.3284 4 18.5V13.75C2.89543 13.75 2 12.8546 2 11.75C2 10.6454 2.89543 9.75 4 9.75V8.5C4 7.23438 4.6015 6.09642 5.53982 5.34005C5.86241 5.08006 6.33647 5.12899 6.59646 5.45158C6.85645 5.77417 6.80753 6.24823 6.48493 6.50822C5.87222 7.00207 5.5 7.72379 5.5 8.5V11Z"
+                        fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2
+                class="text-text-primary-light dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">
+                RunTrack <span class="text-primary">Pacer</span></h2>
+        </div>
+        <div class="hidden md:flex flex-1 justify-center gap-8 px-8">
+            <a class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium hover:text-primary transition-colors"
+                href="#">Dashboard</a>
+            <a class="text-primary text-sm font-bold border-b-2 border-primary pb-0.5" href="#">Activities</a>
+            <a class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium hover:text-primary transition-colors"
+                href="#">Training</a>
+            <a class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium hover:text-primary transition-colors"
+                href="#">Reports</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-transparent hover:border-primary cursor-pointer transition-colors shadow-lg shadow-black/20"
+                data-alt="User profile picture showing a runner"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBHcqjM9w3t_a0rDNVrIqn1pccBFAF1vuRNWbWQsdwgAI3Rfh1bLPt7ist7S2-Q1_dFp4guD5mrEqgjkmaLzzDfpxyzVzJ8gfdKZjhMw4SBQu4YieQ4eDvqf2GFxnVR-u8XAWpyzaF38MBAKlCufMTNE08KZT9DJ4gppvBriu-k0r9ULiD-ilh27J0W2lsr-aolu9AJsSwXlEl-ETQuD6DSTCT58WpzKggDp1pDi0thFvxGNTZZNu3Yk_oU_F4cBOuh-rck8r5FqhiD");'>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h1
+                    class="text-text-primary-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                    Activities History
+                </h1>
+                <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm mt-1">Detailed performance
+                    metrics for your recent sessions.</p>
+            </div>
+            <button
+                class="group flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-5 bg-primary hover:bg-primary-hover text-[#0f172a] text-sm font-bold leading-normal tracking-[0.015em] transition-all shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>Log Run</span>
+            </button>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div
+                class="flex flex-col gap-1 rounded-xl p-5 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <span class="material-symbols-outlined text-primary text-[64px]">directions_run</span>
+                </div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-primary text-[24px]">directions_run</span>
+                    <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Total Runs
+                    </p>
+                </div>
+                <p class="text-text-primary-light dark:text-white text-3xl font-black leading-tight tracking-tight">42
+                </p>
+                <p
+                    class="text-xs text-green-600 dark:text-green-400 font-bold mt-1 flex items-center gap-1 bg-green-500/10 w-fit px-2 py-0.5 rounded-full">
+                    <span class="material-symbols-outlined text-[16px]">trending_up</span> +3 this week
+                </p>
+            </div>
+            <div
+                class="flex flex-col gap-1 rounded-xl p-5 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <span class="material-symbols-outlined text-primary text-[64px]">straighten</span>
+                </div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-primary text-[24px]">straighten</span>
+                    <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Total
+                        Distance</p>
+                </div>
+                <p class="text-text-primary-light dark:text-white text-3xl font-black leading-tight tracking-tight">345
+                    <span class="text-lg font-medium text-text-secondary-dark">km</span></p>
+            </div>
+            <div
+                class="flex flex-col gap-1 rounded-xl p-5 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <span class="material-symbols-outlined text-primary text-[64px]">schedule</span>
+                </div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-primary text-[24px]">schedule</span>
+                    <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Total Time
+                    </p>
+                </div>
+                <p class="text-text-primary-light dark:text-white text-3xl font-black leading-tight tracking-tight">
+                    32<span class="text-lg font-medium text-text-secondary-dark">h</span> 15<span
+                        class="text-lg font-medium text-text-secondary-dark">m</span></p>
+            </div>
+            <div
+                class="flex flex-col gap-1 rounded-xl p-5 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <span class="material-symbols-outlined text-primary text-[64px]">speed</span>
+                </div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-primary text-[24px]">speed</span>
+                    <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Avg Pace</p>
+                </div>
+                <p class="text-text-primary-light dark:text-primary text-3xl font-black leading-tight tracking-tight">
+                    5:35 <span class="text-lg font-medium text-text-secondary-dark">/km</span></p>
+            </div>
+        </div>
+        <div
+            class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-surface-light dark:bg-surface-dark p-4 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+            <div class="relative w-full md:max-w-md">
+                <div
+                    class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-secondary-light dark:text-text-secondary-dark">
+                    <span class="material-symbols-outlined text-[20px]">search</span>
+                </div>
+                <input
+                    class="block w-full h-10 pl-10 pr-3 py-2 border border-border-light dark:border-border-dark rounded-lg leading-5 bg-white dark:bg-[#0f172a] text-text-primary-light dark:text-white placeholder-[#94a3b8] dark:placeholder-[#4b5563] focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-all"
+                    placeholder="Search by run name or location..." type="text" />
+            </div>
+            <div class="flex gap-2 overflow-x-auto pb-1 md:pb-0 w-full md:w-auto no-scrollbar">
+                <button
+                    class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent rounded-lg text-sm font-medium text-text-primary-light dark:text-white hover:border-primary dark:hover:border-primary transition-colors whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    <span>Last 30 Days</span>
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                </button>
+                <button
+                    class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent rounded-lg text-sm font-medium text-text-primary-light dark:text-white hover:border-primary dark:hover:border-primary transition-colors whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    <span>Type: All</span>
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                </button>
+                <button
+                    class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent rounded-lg text-sm font-medium text-text-primary-light dark:text-white hover:border-primary dark:hover:border-primary transition-colors whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[18px]">terrain</span>
+                    <span>Terrain</span>
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                </button>
+            </div>
+        </div>
+        <div
+            class="rounded-xl border border-border-light dark:border-border-dark overflow-hidden bg-surface-light dark:bg-surface-dark shadow-lg">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-border-light dark:border-border-dark bg-[#f8fafc] dark:bg-[#0f172a]">
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors">
+                                <div class="flex items-center gap-1">Date <span
+                                        class="material-symbols-outlined text-[16px]">arrow_downward</span></div>
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors">
+                                Name
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-right">
+                                Distance
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-right">
+                                Duration
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-right">
+                                Pace
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-right">
+                                Avg Cadence
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-center">
+                                HR Zones
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-right">
+                                Elev. Gain
+                            </th>
+                            <th
+                                class="p-4 text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark whitespace-nowrap">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-light dark:divide-border-dark">
+                        <tr class="group hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors cursor-pointer">
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white">
+                                <span class="font-bold">Oct 24, 2023</span>
+                                <span
+                                    class="block text-xs text-text-secondary-light dark:text-text-secondary-dark font-medium mt-0.5">06:30
+                                    AM</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="size-9 rounded-lg bg-[#e2e8f0] dark:bg-[#1e293b] border border-border-light dark:border-border-dark flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <span class="material-symbols-outlined text-[20px]">directions_run</span>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-bold text-text-primary-light dark:text-white group-hover:text-primary transition-colors">
+                                            Morning Tempo Run</p>
+                                        <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                                            Central Park Loop</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                12.5 km</td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                01:02:30</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-primary font-black text-right font-mono">5:00
+                                <span class="text-xs font-normal text-text-secondary-dark">/km</span></td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                178 <span class="text-xs text-text-secondary-dark">spm</span></td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex flex-col gap-1 items-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-zone-4">158 bpm</span>
+                                        <span
+                                            class="text-[10px] uppercase text-text-secondary-dark border border-border-dark px-1 rounded bg-[#0f172a]">Zone
+                                            4</span>
+                                    </div>
+                                    <div class="w-24 h-1.5 bg-[#0f172a] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-zone-1 w-[10%]"></div>
+                                        <div class="h-full bg-zone-2 w-[15%]"></div>
+                                        <div class="h-full bg-zone-3 w-[25%]"></div>
+                                        <div class="h-full bg-zone-4 w-[40%]"></div>
+                                        <div class="h-full bg-zone-5 w-[10%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                120m</td>
+                            <td class="p-4 whitespace-nowrap text-right">
+                                <button
+                                    class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="group hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors cursor-pointer">
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white">
+                                <span class="font-bold">Oct 22, 2023</span>
+                                <span
+                                    class="block text-xs text-text-secondary-light dark:text-text-secondary-dark font-medium mt-0.5">05:15
+                                    PM</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="size-9 rounded-lg bg-[#e2e8f0] dark:bg-[#1e293b] border border-border-light dark:border-border-dark flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <span class="material-symbols-outlined text-[20px]">fitness_center</span>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-bold text-text-primary-light dark:text-white group-hover:text-primary transition-colors">
+                                            Interval Training</p>
+                                        <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">High
+                                            School Track</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                8.0 km</td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                00:45:10</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-primary font-black text-right font-mono">5:38
+                                <span class="text-xs font-normal text-text-secondary-dark">/km</span></td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                165 <span class="text-xs text-text-secondary-dark">spm</span></td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex flex-col gap-1 items-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-zone-5">172 bpm</span>
+                                        <span
+                                            class="text-[10px] uppercase text-text-secondary-dark border border-border-dark px-1 rounded bg-[#0f172a]">Zone
+                                            5</span>
+                                    </div>
+                                    <div class="w-24 h-1.5 bg-[#0f172a] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-zone-1 w-[5%]"></div>
+                                        <div class="h-full bg-zone-2 w-[5%]"></div>
+                                        <div class="h-full bg-zone-3 w-[10%]"></div>
+                                        <div class="h-full bg-zone-4 w-[20%]"></div>
+                                        <div class="h-full bg-zone-5 w-[60%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                15m</td>
+                            <td class="p-4 whitespace-nowrap text-right">
+                                <button
+                                    class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="group hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors cursor-pointer">
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white">
+                                <span class="font-bold">Oct 20, 2023</span>
+                                <span
+                                    class="block text-xs text-text-secondary-light dark:text-text-secondary-dark font-medium mt-0.5">07:00
+                                    AM</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="size-9 rounded-lg bg-[#e2e8f0] dark:bg-[#1e293b] border border-border-light dark:border-border-dark flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <span class="material-symbols-outlined text-[20px]">hiking</span>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-bold text-text-primary-light dark:text-white group-hover:text-primary transition-colors">
+                                            Sunday Long Run</p>
+                                        <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                                            Riverside Trail</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                21.1 km</td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                01:58:45</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-primary font-black text-right font-mono">5:37
+                                <span class="text-xs font-normal text-text-secondary-dark">/km</span></td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                172 <span class="text-xs text-text-secondary-dark">spm</span></td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex flex-col gap-1 items-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-zone-3">142 bpm</span>
+                                        <span
+                                            class="text-[10px] uppercase text-text-secondary-dark border border-border-dark px-1 rounded bg-[#0f172a]">Zone
+                                            3</span>
+                                    </div>
+                                    <div class="w-24 h-1.5 bg-[#0f172a] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-zone-1 w-[10%]"></div>
+                                        <div class="h-full bg-zone-2 w-[20%]"></div>
+                                        <div class="h-full bg-zone-3 w-[50%]"></div>
+                                        <div class="h-full bg-zone-4 w-[15%]"></div>
+                                        <div class="h-full bg-zone-5 w-[5%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                340m</td>
+                            <td class="p-4 whitespace-nowrap text-right">
+                                <button
+                                    class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="group hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors cursor-pointer">
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white">
+                                <span class="font-bold">Oct 18, 2023</span>
+                                <span
+                                    class="block text-xs text-text-secondary-light dark:text-text-secondary-dark font-medium mt-0.5">06:45
+                                    PM</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="size-9 rounded-lg bg-[#e2e8f0] dark:bg-[#1e293b] border border-border-light dark:border-border-dark flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <span class="material-symbols-outlined text-[20px]">directions_run</span>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-bold text-text-primary-light dark:text-white group-hover:text-primary transition-colors">
+                                            Recovery Jog</p>
+                                        <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                                            Neighborhood</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                5.0 km</td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                00:32:15</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-primary font-black text-right font-mono">6:27
+                                <span class="text-xs font-normal text-text-secondary-dark">/km</span></td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                160 <span class="text-xs text-text-secondary-dark">spm</span></td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex flex-col gap-1 items-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-zone-2">125 bpm</span>
+                                        <span
+                                            class="text-[10px] uppercase text-text-secondary-dark border border-border-dark px-1 rounded bg-[#0f172a]">Zone
+                                            2</span>
+                                    </div>
+                                    <div class="w-24 h-1.5 bg-[#0f172a] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-zone-1 w-[20%]"></div>
+                                        <div class="h-full bg-zone-2 w-[70%]"></div>
+                                        <div class="h-full bg-zone-3 w-[10%]"></div>
+                                        <div class="h-full bg-transparent w-[0%]"></div>
+                                        <div class="h-full bg-transparent w-[0%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                45m</td>
+                            <td class="p-4 whitespace-nowrap text-right">
+                                <button
+                                    class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="group hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors cursor-pointer">
+                            <td class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white">
+                                <span class="font-bold">Oct 15, 2023</span>
+                                <span
+                                    class="block text-xs text-text-secondary-light dark:text-text-secondary-dark font-medium mt-0.5">08:00
+                                    AM</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="size-9 rounded-lg bg-[#e2e8f0] dark:bg-[#1e293b] border border-border-light dark:border-border-dark flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <span class="material-symbols-outlined text-[20px]">emoji_events</span>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-bold text-text-primary-light dark:text-white group-hover:text-primary transition-colors">
+                                            City Half Marathon</p>
+                                        <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                                            Downtown</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                21.1 km</td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                01:45:30</td>
+                            <td class="p-4 whitespace-nowrap text-sm text-primary font-black text-right font-mono">5:00
+                                <span class="text-xs font-normal text-text-secondary-dark">/km</span></td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                182 <span class="text-xs text-text-secondary-dark">spm</span></td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex flex-col gap-1 items-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-zone-4">164 bpm</span>
+                                        <span
+                                            class="text-[10px] uppercase text-text-secondary-dark border border-border-dark px-1 rounded bg-[#0f172a]">Zone
+                                            4</span>
+                                    </div>
+                                    <div class="w-24 h-1.5 bg-[#0f172a] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-zone-1 w-[5%]"></div>
+                                        <div class="h-full bg-zone-2 w-[10%]"></div>
+                                        <div class="h-full bg-zone-3 w-[25%]"></div>
+                                        <div class="h-full bg-zone-4 w-[50%]"></div>
+                                        <div class="h-full bg-zone-5 w-[10%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="p-4 whitespace-nowrap text-sm text-text-primary-light dark:text-white text-right font-mono font-medium">
+                                180m</td>
+                            <td class="p-4 whitespace-nowrap text-right">
+                                <button
+                                    class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div
+                class="border-t border-border-light dark:border-border-dark px-4 py-3 flex items-center justify-between bg-surface-light dark:bg-surface-dark">
+                <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    Showing <span class="font-bold text-text-primary-light dark:text-white">1</span> to <span
+                        class="font-bold text-text-primary-light dark:text-white">5</span> of <span
+                        class="font-bold text-text-primary-light dark:text-white">42</span> results
+                </div>
+                <div class="flex gap-2">
+                    <button
+                        class="px-3 py-1 text-sm rounded-md bg-[#e2e8f0] dark:bg-[#1e293b] text-text-secondary-light dark:text-text-secondary-dark opacity-50 cursor-not-allowed font-medium">Previous</button>
+                    <button
+                        class="px-3 py-1 text-sm rounded-md bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent text-text-primary-light dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#2a3649] hover:border-primary transition-colors font-medium">1</button>
+                    <button
+                        class="px-3 py-1 text-sm rounded-md bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent text-text-primary-light dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#2a3649] hover:border-primary transition-colors font-medium">2</button>
+                    <button
+                        class="px-3 py-1 text-sm rounded-md bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent text-text-primary-light dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#2a3649] hover:border-primary transition-colors font-medium">3</button>
+                    <span class="text-text-secondary-light dark:text-text-secondary-dark px-1">...</span>
+                    <button
+                        class="px-3 py-1 text-sm rounded-md bg-white dark:bg-[#1e293b] border border-border-light dark:border-transparent text-text-primary-light dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#2a3649] hover:border-primary transition-colors font-medium">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Professional Runner Portal Login - Running Pacer</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f59e0b", // Amber 500
+                        "primary-hover": "#d97706", // Amber 600
+                        "background-light": "#f8fafc", // Slate 50
+                        "background-dark": "#09090b", // Zinc 950
+                        "card-dark": "#18181b", // Zinc 900
+                        "input-bg": "#27272a", // Zinc 800
+                        "input-border": "#3f3f46", // Zinc 700
+                        "text-muted": "#a1a1aa", // Zinc 400
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-white min-h-screen flex items-center justify-center p-4 md:p-6"
+    style="--checkbox-tick-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(9,9,11)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z%27/%3e%3c/svg%3e');">
+    <div class="layout-container flex w-full justify-center">
+        <div
+            class="flex flex-col lg:flex-row w-full max-w-[1024px] bg-card-dark rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/5 min-h-[640px]">
+            <div class="hidden lg:flex w-1/2 relative bg-background-dark">
+                <div class="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-overlay"
+                    data-alt="Athletic runner sprinting on a track lane with motion blur"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA0DinK0r9Y2Rp8xO4bexbeGA8RYl_nPFykPgmwOjrbapz7Cr0Sxu4p46gidwrdj8n_ycF4j3sasD6FCegZWXyu9jmjtPm3ShomYA9XsBdPe665xT8pitbaYPUcNbW6Z7VjcQTLYNpIXIXZuKJkLooZPtOSLyPmxDZ25yCmya1zeWdhtPI2epj4vOGfPXug7qNFKCMEfHuRf8waVMN77k4JtV_JVxTCOqSpv0ZoU9uYbQ0MgeLAmr93oplGz0ouP8HTguI4t5bIIIZj');">
+                </div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/30 to-transparent">
+                </div>
+                <div class="relative z-10 flex flex-col justify-end h-full p-12">
+                    <div
+                        class="mb-4 inline-flex items-center gap-2 text-primary border border-primary/20 bg-primary/10 backdrop-blur-sm px-3 py-1 rounded-full w-fit shadow-lg shadow-black/20">
+                        <span class="material-symbols-outlined text-sm">trending_up</span>
+                        <span class="text-xs font-bold uppercase tracking-wider">Elite Analytics</span>
+                    </div>
+                    <h2 class="text-4xl font-bold text-white mb-4 leading-tight tracking-tight">Pace
+                        your<br />potential.</h2>
+                    <p class="text-gray-400 text-lg max-w-sm font-light">Join the community of professional runners
+                        turning data into distance.</p>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2 p-8 md:p-12 xl:p-16 flex flex-col justify-center bg-card-dark relative">
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/2">
+                </div>
+                <div class="mb-10 text-center lg:text-left relative z-10">
+                    <div class="flex items-center justify-center lg:justify-start gap-3 mb-8">
+                        <div
+                            class="h-10 w-10 bg-gradient-to-br from-primary to-amber-300 rounded-lg flex items-center justify-center text-zinc-900 shadow-lg shadow-primary/20 transform skew-x-[-10deg]">
+                            <span class="material-symbols-outlined text-2xl transform skew-x-[10deg]">speed</span>
+                        </div>
+                        <span class="text-2xl font-bold tracking-tight text-white font-display">Running Pacer</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-white mb-2">Welcome back</h1>
+                    <p class="text-text-muted">Enter your credentials to access your dashboard.</p>
+                </div>
+                <form class="space-y-5 relative z-10" onsubmit="event.preventDefault();">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-white text-sm font-medium leading-normal">Email Address</label>
+                        <div class="relative group">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors duration-300">
+                                <span class="material-symbols-outlined text-[20px]">mail</span>
+                            </div>
+                            <input
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-input-border bg-input-bg focus:border-primary h-12 placeholder:text-text-muted/40 pl-11 pr-4 text-base font-normal leading-normal transition-all duration-300"
+                                placeholder="runner@example.com" type="email" value="" />
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-white text-sm font-medium leading-normal">Password</label>
+                        </div>
+                        <div class="relative group">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors duration-300">
+                                <span class="material-symbols-outlined text-[20px]">lock</span>
+                            </div>
+                            <input
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-input-border bg-input-bg focus:border-primary h-12 placeholder:text-text-muted/40 pl-11 pr-12 text-base font-normal leading-normal transition-all duration-300"
+                                placeholder="••••••••" type="password" value="" />
+                            <button
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-white transition-colors"
+                                type="button">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-center justify-between pt-1">
+                        <label class="flex gap-x-3 items-center cursor-pointer group">
+                            <input
+                                class="h-4 w-4 rounded border-input-border border-2 bg-transparent text-primary checked:bg-primary checked:border-primary checked:bg-[image:var(--checkbox-tick-svg)] focus:ring-0 focus:ring-offset-0 focus:border-primary focus:outline-none transition-all duration-200"
+                                type="checkbox" />
+                            <p
+                                class="text-text-muted group-hover:text-white transition-colors text-sm font-normal leading-normal">
+                                Stay logged in</p>
+                        </label>
+                        <a class="text-sm font-medium text-primary hover:text-primary-hover transition-colors underline decoration-transparent hover:decoration-primary underline-offset-4"
+                            href="#">Forgot password?</a>
+                    </div>
+                    <button
+                        class="w-full bg-primary hover:bg-primary-hover text-zinc-950 font-bold text-base h-12 rounded-lg shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 mt-4 duration-300">
+                        <span>Sign In</span>
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </button>
+                </form>
+                <div class="mt-8 text-center relative z-10">
+                    <p class="text-text-muted text-sm">Don't have an account? <a
+                            class="text-white font-bold hover:text-primary transition-colors ml-1" href="#">Sign Up</a>
+                    </p>
+                </div>
+                <div class="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 gap-4 relative z-10">
+                    <button
+                        class="flex items-center justify-center gap-2 h-10 rounded-lg border border-input-border bg-input-bg hover:bg-white/5 transition-colors text-white text-sm font-medium">
+                        <img alt="G" class="w-5 h-5 opacity-90" data-alt="Google logo icon"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT6Kj-RRf7h0aINk-DMgaDSZQXao2qaIj0hAvyvaFBFP_1hrNibEtyxuqf4kCNbBxk89c3mUauFyKr65XMfrBA1mSOameUSRusfPbURm3anSM08KQ2sR9iIRmN0wpp_gNznxTlsPYfMAlVuJeZPEXqnmBs4po-xOJz1rG9Sk85dDFd_F8E0cCGodN9YVlosVSXGUZoCi62bmvhM5OxHqW4a6eZEWun5eXDlXAjrVrCCwxMmFRqU5-xRfGHvm61Ej4k3BBio5SqjsmH" />
+                        <span>Google</span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center gap-2 h-10 rounded-lg border border-input-border bg-input-bg hover:bg-white/5 transition-colors text-white text-sm font-medium">
+                        <img alt="A" class="w-5 h-5 invert opacity-90" data-alt="Apple logo icon"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjLXs8DpAyIaYjFIkufh6iHqfu8qXs1eDQmby7l_Hb_WVdbEU0Hq58ZBHD7OqlINcZ6mgcEbhzjEFYhpwK7EQGFdia95l9Vu7ej_5Mm7XIlrX1sDGURcnrCA-IZx4uJN8OtqxDcsatXlzFUev_Ety1TNZd3kna3uJebBQTUf5sRMNDjoF67P1aEMO9ov9h7z1XECUH4RP02m1ze_DJum3N9G9DOc13QsBZrfH0mYDr-N2nToNyfXugiXFVroOeutpzTSweFQeZIida" />
+                        <span>Apple</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

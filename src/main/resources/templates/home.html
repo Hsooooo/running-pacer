@@ -1,232 +1,480 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html class="dark" lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Running Pacer - Dashboard</title>
+    <meta name="description" content="AI-Powered Running Analytics Dashboard" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Noto+Sans:wght@100..900&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFB300",
+                        "primary-hover": "#FFCA28",
+                        "background-light": "#f1f5f9",
+                        "background-dark": "#0B1120",
+                        "surface-dark": "#151e32",
+                        "surface-highlight": "#1e2942",
+                        "text-secondary": "#94a3b8",
+                        "border-dark": "#2a3655"
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(255, 179, 0, 0.25)',
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1)'
+                    }
+                },
+            },
+        }
+    </script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 2rem; color: #1d1d1f; }
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 350px 1fr; gap: 2rem; }
-        
-        .header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        h2 { margin-top: 0; font-size: 1.25rem; }
-        
-        .btn { display: inline-block; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; font-size: 0.9rem; transition: all 0.2s; }
-        .btn-strava { background-color: #FC4C02; color: white; width: 100%; text-align: center; }
-        .btn-strava:hover { background-color: #E34402; }
-        .btn-outline { border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; }
-        .btn-outline:hover { background: #f5f5f7; }
-        .btn-small { padding: 4px 10px; font-size: 0.8rem; }
-        
-        /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close:hover { color: black; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: #86868b; }
-        .form-group input { width: 100%; padding: 8px; border: 1px solid #d2d2d7; border-radius: 6px; box-sizing: border-box; }
-        
-        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .status-connected { background-color: #e8f5e9; color: #2e7d32; }
-        .status-disconnected { background-color: #ffebee; color: #c62828; }
-        
-        code { background: #f5f5f7; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
-        
-        /* Activity List */
-        .activity-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
-        .activity-item { padding: 12px; border-bottom: 1px solid #f5f5f7; cursor: pointer; transition: background 0.2s; border-radius: 8px; }
-        .activity-item:hover { background-color: #f0f0f2; }
-        .activity-item.active { background-color: #e3f2fd; border-color: #bbdefb; }
-        .activity-date { font-size: 0.85rem; color: #86868b; }
-        .activity-title { font-weight: 600; margin: 2px 0; }
-        .activity-stat { font-size: 0.85rem; color: #1d1d1f; }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
 
-        /* Detail View */
-        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .stat-box { background: #f9f9fa; padding: 1rem; border-radius: 8px; text-align: center; }
-        .stat-label { font-size: 0.75rem; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
-        .stat-unit { font-size: 0.85rem; color: #86868b; font-weight: 400; }
-        
-        .chart-container { position: relative; height: 300px; width: 100%; }
-        .empty-state { text-align: center; color: #86868b; padding: 4rem 2rem; }
+        ::-webkit-scrollbar-track {
+            background: #0B1120;
+        }
 
-        .token-list { list-style: none; padding: 0; }
-        .token-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f7; }
-        .token-val { filter: blur(4px); transition: filter 0.2s; cursor: pointer; }
-        .token-val:hover { filter: none; }
+        ::-webkit-scrollbar-thumb {
+            background: #1e2942;
+            border-radius: 4px;
+        }
 
-        /* Dashboard Insights */
-        .insight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; grid-column: 1 / -1; }
-        .insight-card { background: white; padding: 1.25rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-height: 120px; }
-        .insight-label { font-size: 0.75rem; color: #86868b; margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .insight-value { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .insight-sub { font-size: 0.85rem; color: #86868b; }
-        .insight-chart { height: 40px; margin-top: 0.5rem; width: 100%; }
-        .trend-up { color: #34c759; }
-        .trend-down { color: #ff3b30; }
-        .risk-low { color: #34c759; }
-        .risk-medium { color: #ff9500; }
-        .risk-high { color: #ff3b30; }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFB300;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
     </style>
 </head>
-<body>
-    <div class="header">
-        <div>
-            <h1>Dashboard</h1>
-            <p style="margin: 0; color: #86868b;">Logged in as <strong th:text="${name}">User</strong> (<span th:text="${email}">user@example.com</span>)</p>
-        </div>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn btn-outline">Logout</button>
-        </form>
-    </div>
 
-    <div class="container">
-        <div class="insight-grid" id="insight-section">
-            <div class="insight-card">
-                <div class="insight-label">Weekly Distance</div>
-                <div class="insight-value" id="week-dist">0.0 <span class="stat-unit">km</span></div>
-                <div class="insight-sub" id="week-count">0 runs this week</div>
-            </div>
-            <div class="insight-card">
-                <div class="insight-label">4-Week Trend</div>
-                <div class="insight-value" id="trend-val">-</div>
-                <div class="insight-sub" id="trend-desc">Calculating...</div>
-                <div class="insight-chart"><canvas id="trendChart"></canvas></div>
-            </div>
-            <div class="insight-card">
-                <div class="insight-label">Anomalies (30d)</div>
-                <div class="insight-value" id="anomaly-count">0</div>
-                <div class="insight-sub">Detected fatigue signs</div>
-            </div>
-            <div class="insight-card">
-                <div class="insight-label">Condition Risk</div>
-                <div class="insight-value" id="risk-score">0</div>
-                <div class="insight-sub" id="risk-level">Unknown</div>
-            </div>
-        </div>
-
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden selection:bg-primary selection:text-background-dark">
+    <div class="flex h-screen w-full">
         <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Strava Status -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2>Strava</h2>
-                    <span th:if="${isStravaLinked}" class="status-badge status-connected">Linked</span>
-                    <span th:unless="${isStravaLinked}" class="status-badge status-disconnected">Unlinked</span>
+        <aside class="hidden md:flex w-64 flex-col bg-background-dark border-r border-border-dark h-full shrink-0 z-20">
+            <div class="flex flex-col h-full p-4 justify-between">
+                <div class="flex flex-col gap-10">
+                    <!-- Logo -->
+                    <div class="flex gap-3 items-center px-2 py-2">
+                        <div
+                            class="flex items-center justify-center size-10 bg-primary rounded-lg -skew-x-12 shadow-glow">
+                            <span class="material-symbols-outlined text-background-dark font-bold text-2xl"
+                                style="transform: skewX(12deg)">bolt</span>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h1 class="text-white text-xl font-black italic tracking-tight uppercase leading-none">
+                                Running<span class="text-primary">Pacer</span></h1>
+                            <p class="text-text-secondary text-[10px] font-medium tracking-widest uppercase mt-1">Elite
+                                Performance</p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <nav class="flex flex-col gap-2">
+                        <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-highlight border-l-4 border-primary shadow-subtle group transition-all"
+                            href="/">
+                            <span class="material-symbols-outlined text-primary">dashboard</span>
+                            <p class="text-white text-sm font-bold leading-normal">Dashboard</p>
+                        </a>
+                        <a class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-transparent hover:bg-surface-highlight/50 group transition-all"
+                            href="/activities">
+                            <span
+                                class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">directions_run</span>
+                            <p
+                                class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal transition-colors">
+                                Activities</p>
+                        </a>
+                        <!-- Disabled Menu Items -->
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-transparent opacity-40 cursor-not-allowed"
+                            title="준비 중">
+                            <span class="material-symbols-outlined text-text-secondary">bar_chart</span>
+                            <p class="text-text-secondary text-sm font-medium leading-normal">Analytics</p>
+                            <span
+                                class="ml-auto text-[10px] bg-surface-highlight px-2 py-0.5 rounded text-text-secondary">Soon</span>
+                        </div>
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-transparent opacity-40 cursor-not-allowed"
+                            title="준비 중">
+                            <span class="material-symbols-outlined text-text-secondary">calendar_month</span>
+                            <p class="text-text-secondary text-sm font-medium leading-normal">Training Plan</p>
+                            <span
+                                class="ml-auto text-[10px] bg-surface-highlight px-2 py-0.5 rounded text-text-secondary">Soon</span>
+                        </div>
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-transparent opacity-40 cursor-not-allowed"
+                            title="준비 중">
+                            <span class="material-symbols-outlined text-text-secondary">settings</span>
+                            <p class="text-text-secondary text-sm font-medium leading-normal">Settings</p>
+                            <span
+                                class="ml-auto text-[10px] bg-surface-highlight px-2 py-0.5 rounded text-text-secondary">Soon</span>
+                        </div>
+                    </nav>
                 </div>
-                
-                <div th:if="${isStravaLinked}">
-                    <form th:action="@{/admin/sync/activities}" method="post" style="margin-bottom: 8px;">
-                        <button type="submit" class="btn btn-outline" style="width: 100%">Sync Recent Activities</button>
+
+                <!-- User Profile & Logout -->
+                <div class="px-2">
+                    <div class="flex items-center gap-3 mb-6 p-3 bg-surface-dark rounded-xl border border-white/5">
+                        <div class="size-10 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary">person</span>
+                        </div>
+                        <div class="overflow-hidden">
+                            <p class="text-white text-sm font-bold truncate" th:text="${name}">User</p>
+                            <p class="text-text-secondary text-xs truncate" th:text="${email}">user@example.com</p>
+                        </div>
+                    </div>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit"
+                            class="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 bg-surface-highlight/30 text-text-secondary text-sm font-bold hover:bg-surface-highlight hover:text-white transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                            <span>Sign Out</span>
+                        </button>
                     </form>
-                    <button onclick="openSyncModal()" class="btn btn-outline btn-small" style="width: 100%">Custom Sync...</button>
-                </div>
-                <div th:unless="${isStravaLinked}">
-                    <button onclick="connectStrava()" class="btn btn-strava">Connect with Strava</button>
                 </div>
             </div>
-
-            <!-- Recent Activities -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2>Recent Runs</h2>
-                    <a href="/activities" class="btn btn-outline btn-small" style="text-decoration: none;">View All</a>
-                </div>
-                <ul class="activity-list" th:if="${not #lists.isEmpty(recentActivities)}">
-                    <li th:each="act : ${recentActivities}" class="activity-item" 
-                        th:onclick="'loadActivity(' + ${act.activityId} + ', this)'">
-                        <div class="activity-date" th:text="${act.date}">2023-10-25</div>
-                        <div class="activity-title" th:text="${act.distanceM / 1000.0} + ' km Run'">5.0 km Run</div>
-                        <div class="activity-stat">
-                            <span th:if="${act.avgPaceSecPerKm != null}" th:text="${act.avgPaceSecPerKm / 60} + ':' + ${#numbers.formatInteger(act.avgPaceSecPerKm % 60, 2)} + '/km'">5:30/km</span>
-                            <span th:if="${act.avgHr != null}" th:text="' • ' + ${act.avgHr} + ' bpm'"> • 150 bpm</span>
-                        </div>
-                    </li>
-                </ul>
-                <p th:if="${#lists.isEmpty(recentActivities)}" style="color: #86868b; text-align: center;">No recent activities found.</p>
-            </div>
-
-            <!-- MCP Tokens -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2>API Tokens</h2>
-                    <button onclick="createToken()" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">+ New</button>
-                </div>
-                <ul class="token-list" th:if="${not #lists.isEmpty(tokens)}">
-                    <li th:each="token : ${tokens}" class="token-item">
-                        <div>
-                            <div th:text="${token.name}" style="font-weight: 500; font-size: 0.9rem;">MacBook</div>
-                            <code class="token-val" th:text="${token.token}">sk-...</code>
-                        </div>
-                        <button class="btn btn-outline" style="padding: 2px 6px; font-size: 0.75rem;" th:onclick="'deleteToken(' + ${token.id} + ')'">Revoke</button>
-                    </li>
-                </ul>
-                <p th:if="${#lists.isEmpty(tokens)}" style="color: #86868b; font-size: 0.9rem;">No tokens generated.</p>
-            </div>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div class="main-content">
-            <div id="empty-view" class="card empty-state">
-                <h3>Select an activity</h3>
-                <p>Choose a run from the list to view detailed analytics and charts.</p>
-            </div>
+        <div
+            class="flex-1 flex flex-col h-full overflow-hidden relative bg-gradient-to-br from-background-dark to-[#050914]">
+            <!-- Header -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-dark px-6 py-5 bg-background-dark/80 backdrop-blur-md z-10 sticky top-0">
+                <div class="flex items-center gap-4 text-white">
+                    <div class="md:hidden p-2 rounded-lg hover:bg-surface-highlight cursor-pointer text-text-secondary">
+                        <span class="material-symbols-outlined">menu</span>
+                    </div>
+                    <h2 class="text-white text-xl font-bold leading-tight tracking-tight">Dashboard Overview</h2>
+                </div>
+                <div class="flex items-center justify-end gap-4 md:gap-6">
+                    <!-- Strava Status -->
+                    <div th:if="${isStravaLinked}"
+                        class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-green-400 text-xs font-bold">Strava Linked</span>
+                    </div>
+                    <div th:unless="${isStravaLinked}"
+                        class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span class="text-red-400 text-xs font-bold">Strava Unlinked</span>
+                    </div>
 
-            <div id="detail-view" class="card" style="display: none;">
-                <h2 id="detail-title" style="margin-bottom: 1.5rem;">Activity Details</h2>
-                
-                <div class="detail-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">Distance</div>
-                        <div class="stat-value" id="detail-dist">0.0</div>
-                        <div class="stat-unit">km</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Time</div>
-                        <div class="stat-value" id="detail-time">00:00</div>
-                        <div class="stat-unit">duration</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Avg Pace</div>
-                        <div class="stat-value" id="detail-pace">0:00</div>
-                        <div class="stat-unit">/km</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Avg HR</div>
-                        <div class="stat-value" id="detail-hr">-</div>
-                        <div class="stat-unit">bpm</div>
+                    <div class="hidden sm:flex gap-3">
+                        <button th:if="${isStravaLinked}" onclick="openSyncModal()"
+                            class="flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-5 bg-primary hover:bg-primary-hover transition-colors text-background-dark text-sm font-bold leading-normal tracking-wide shadow-glow">
+                            <span class="material-symbols-outlined text-[20px]">sync</span>
+                            <span>Sync</span>
+                        </button>
+                        <button th:unless="${isStravaLinked}" onclick="connectStrava()"
+                            class="flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-5 bg-[#FC4C02] hover:bg-[#E34402] transition-colors text-white text-sm font-bold leading-normal tracking-wide">
+                            <span class="material-symbols-outlined text-[20px]">link</span>
+                            <span>Connect Strava</span>
+                        </button>
+                        <button
+                            class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-surface-highlight text-text-secondary hover:text-white hover:bg-surface-highlight/80 transition-colors border border-white/5 opacity-50 cursor-not-allowed"
+                            disabled title="준비 중">
+                            <span class="material-symbols-outlined text-[22px]">notifications</span>
+                        </button>
                     </div>
                 </div>
+            </header>
 
-                <h3>Pace & Heart Rate</h3>
-                <div class="chart-container">
-                    <canvas id="activityChart"></canvas>
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center">
+                <div class="max-w-[1280px] w-full flex flex-col gap-6 pb-8">
+                    <!-- Stats Cards -->
+                    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Weekly Distance</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">straighten</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-white text-3xl font-bold leading-tight tracking-tight"><span
+                                        id="week-dist">0.0</span> <span
+                                        class="text-lg text-text-secondary font-medium">km</span></p>
+                                <p id="week-count" class="text-xs text-text-secondary mt-2">0 runs this week</p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    4-Week Trend</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">trending_up</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p id="trend-val" class="text-white text-3xl font-bold leading-tight tracking-tight">-
+                                </p>
+                                <p id="trend-desc" class="text-xs text-text-secondary mt-2">Calculating...</p>
+                            </div>
+                            <div class="h-10 mt-2"><canvas id="trendChart"></canvas></div>
+                        </div>
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-6 bg-surface-dark border border-white/5 shadow-subtle hover:border-primary/30 transition-colors group">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-text-secondary text-xs font-bold uppercase tracking-widest group-hover:text-primary transition-colors">
+                                    Condition Risk</p>
+                                <div class="p-2 bg-background-dark rounded-lg text-primary">
+                                    <span class="material-symbols-outlined text-[20px]">health_and_safety</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p id="risk-score" class="text-white text-3xl font-bold leading-tight tracking-tight">0
+                                </p>
+                                <div id="risk-badge"
+                                    class="flex items-center gap-1 mt-2 bg-green-500/10 w-fit px-2 py-1 rounded text-green-400">
+                                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                    <p id="risk-level" class="text-xs font-bold">Low Risk</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Chart & Activities Section -->
+                    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[400px]">
+                        <!-- Activity Detail Chart -->
+                        <div id="detail-view"
+                            class="lg:col-span-2 rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col justify-between shadow-subtle"
+                            style="display: none;">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 id="detail-title" class="text-white text-lg font-bold">Activity Details</h3>
+                                    <p class="text-text-secondary text-sm">Pace & Heart Rate Analysis</p>
+                                </div>
+                                <button onclick="closeDetail()"
+                                    class="text-text-secondary hover:text-white transition-colors">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+
+                            <!-- Stats Grid -->
+                            <div class="grid grid-cols-4 gap-4 mb-6">
+                                <div class="bg-background-dark rounded-lg p-4 text-center">
+                                    <p class="text-text-secondary text-xs font-bold uppercase tracking-wider mb-1">
+                                        Distance</p>
+                                    <p class="text-white text-xl font-bold"><span id="detail-dist">0.0</span><span
+                                            class="text-sm text-text-secondary ml-1">km</span></p>
+                                </div>
+                                <div class="bg-background-dark rounded-lg p-4 text-center">
+                                    <p class="text-text-secondary text-xs font-bold uppercase tracking-wider mb-1">Time
+                                    </p>
+                                    <p id="detail-time" class="text-white text-xl font-bold">00:00</p>
+                                </div>
+                                <div class="bg-background-dark rounded-lg p-4 text-center">
+                                    <p class="text-text-secondary text-xs font-bold uppercase tracking-wider mb-1">Avg
+                                        Pace</p>
+                                    <p class="text-primary text-xl font-bold"><span id="detail-pace">0:00</span><span
+                                            class="text-sm text-text-secondary ml-1">/km</span></p>
+                                </div>
+                                <div class="bg-background-dark rounded-lg p-4 text-center">
+                                    <p class="text-text-secondary text-xs font-bold uppercase tracking-wider mb-1">Avg
+                                        HR</p>
+                                    <p class="text-white text-xl font-bold"><span id="detail-hr">-</span><span
+                                            class="text-sm text-text-secondary ml-1">bpm</span></p>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 min-h-[200px]">
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="empty-view"
+                            class="lg:col-span-2 rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col items-center justify-center shadow-subtle text-center">
+                            <div
+                                class="w-16 h-16 rounded-full bg-surface-highlight flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-primary text-3xl">touch_app</span>
+                            </div>
+                            <h3 class="text-white text-lg font-bold mb-2">Select an activity</h3>
+                            <p class="text-text-secondary text-sm max-w-sm">Choose a run from the list to view detailed
+                                analytics and charts.</p>
+                        </div>
+
+                        <!-- Recent Activities -->
+                        <div
+                            class="lg:col-span-1 rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col gap-5 shadow-subtle">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-white text-lg font-bold">Recent Runs</h3>
+                                <a href="/activities"
+                                    class="text-primary text-xs font-bold uppercase tracking-wider hover:text-white transition-colors">View
+                                    All</a>
+                            </div>
+                            <div class="flex flex-col gap-2 overflow-y-auto max-h-[400px] pr-2">
+                                <th:block th:if="${not #lists.isEmpty(recentActivities)}">
+                                    <div th:each="act : ${recentActivities}"
+                                        th:onclick="'loadActivity(' + ${act.activityId} + ', this)'"
+                                        class="activity-item group flex items-center justify-between p-3 rounded-lg bg-surface-highlight/30 hover:bg-surface-highlight cursor-pointer transition-colors border border-transparent hover:border-white/5">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="size-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]">directions_run</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white text-sm font-semibold group-hover:text-primary transition-colors"
+                                                    th:text="${#numbers.formatDecimal(act.distanceM / 1000.0, 1, 2) + ' km Run'}">
+                                                    5.0 km Run</p>
+                                                <p class="text-text-secondary text-xs" th:text="${act.date}">2023-10-25
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-primary text-sm font-bold"
+                                                th:if="${act.avgPaceSecPerKm != null}"
+                                                th:text="${act.avgPaceSecPerKm / 60} + ':' + ${#numbers.formatInteger(act.avgPaceSecPerKm % 60, 2)} + '/km'">
+                                                5:30/km</p>
+                                            <div th:if="${act.avgHr != null}"
+                                                class="flex items-center justify-end gap-1 text-text-secondary text-xs">
+                                                <span class="material-symbols-outlined text-[14px]">favorite</span>
+                                                <span th:text="${act.avgHr}">150</span> bpm
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th:block>
+                                <div th:if="${#lists.isEmpty(recentActivities)}" class="text-center py-8">
+                                    <span
+                                        class="material-symbols-outlined text-text-secondary text-4xl mb-2">directions_run</span>
+                                    <p class="text-text-secondary text-sm">No recent activities found.</p>
+                                    <p class="text-text-secondary text-xs mt-1">Connect Strava to sync your runs.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Bottom Section: API Tokens & Anomalies -->
+                    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Anomalies Count -->
+                        <div
+                            class="bg-surface-dark rounded-xl p-5 border border-white/5 shadow-subtle flex flex-col items-center justify-between relative overflow-hidden">
+                            <div
+                                class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50">
+                            </div>
+                            <h4
+                                class="text-text-secondary text-xs font-bold uppercase tracking-wider w-full text-center mb-4">
+                                Anomalies (30d)</h4>
+                            <div class="size-20 rounded-full bg-surface-highlight flex items-center justify-center">
+                                <span id="anomaly-count" class="text-white text-3xl font-bold">0</span>
+                            </div>
+                            <p class="text-xs text-text-secondary mt-4">Detected fatigue signs</p>
+                        </div>
+
+                        <!-- API Tokens -->
+                        <div class="lg:col-span-2 bg-surface-dark rounded-xl p-5 border border-white/5 shadow-subtle">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-text-secondary text-xs font-bold uppercase tracking-wider">API Tokens
+                                </h4>
+                                <button onclick="createToken()"
+                                    class="flex items-center gap-1 text-primary hover:text-white transition-colors text-xs font-bold">
+                                    <span class="material-symbols-outlined text-[16px]">add</span> New Token
+                                </button>
+                            </div>
+                            <div class="space-y-2 max-h-[120px] overflow-y-auto">
+                                <th:block th:if="${not #lists.isEmpty(tokens)}">
+                                    <div th:each="token : ${tokens}"
+                                        class="flex items-center justify-between p-3 bg-background-dark rounded-lg">
+                                        <div>
+                                            <p class="text-white text-sm font-medium" th:text="${token.name}">MacBook
+                                            </p>
+                                            <code
+                                                class="text-xs text-text-secondary font-mono blur-sm hover:blur-none transition-all cursor-pointer"
+                                                th:text="${token.token}">sk-...</code>
+                                        </div>
+                                        <button th:onclick="'deleteToken(' + ${token.id} + ')'"
+                                            class="text-red-400 hover:text-red-300 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
+                                    </div>
+                                </th:block>
+                                <div th:if="${#lists.isEmpty(tokens)}" class="text-center py-4">
+                                    <p class="text-text-secondary text-xs">No tokens generated.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MCP Info -->
+                        <div
+                            class="bg-surface-dark rounded-xl p-5 border border-white/5 shadow-subtle flex flex-col justify-between relative overflow-hidden group">
+                            <div
+                                class="absolute -right-6 -top-6 bg-primary/10 size-24 rounded-full group-hover:scale-150 transition-transform duration-700">
+                            </div>
+                            <div class="flex justify-between items-center mb-2 z-10">
+                                <h4 class="text-text-secondary text-xs font-bold uppercase tracking-wider">MCP Server
+                                </h4>
+                                <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+                            </div>
+                            <div class="z-10">
+                                <p class="text-white text-sm font-bold mb-1">SSE Endpoint</p>
+                                <code
+                                    class="text-xs text-primary bg-background-dark px-2 py-1 rounded block truncate">/sse</code>
+                            </div>
+                            <a href="https://github.com/hansu/running-pacer#mcp-서버-사용법" target="_blank"
+                                class="mt-3 text-xs text-text-secondary hover:text-primary transition-colors z-10 flex items-center gap-1">
+                                Learn more <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                            </a>
+                        </div>
+                    </section>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
 
-    <div id="syncModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="margin:0">Custom Sync</h3>
-                <span class="close" onclick="closeSyncModal()">&times;</span>
+    <!-- Sync Modal -->
+    <div id="syncModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-surface-dark rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-white text-lg font-bold">Custom Sync</h3>
+                <button onclick="closeSyncModal()" class="text-text-secondary hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Select date range to sync from Strava.</p>
-            <form id="syncForm" onsubmit="handleCustomSync(event)">
-                <div class="form-group">
-                    <label>From Date</label>
-                    <input type="date" name="from" required>
+            <p class="text-text-secondary text-sm mb-6">Select date range to sync from Strava.</p>
+            <form id="syncForm" onsubmit="handleCustomSync(event)" class="space-y-4">
+                <div>
+                    <label class="text-white text-sm font-medium block mb-2">From Date</label>
+                    <input type="date" name="from" required
+                        class="w-full h-10 px-3 bg-background-dark border border-border-dark rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                 </div>
-                <div class="form-group">
-                    <label>To Date</label>
-                    <input type="date" name="to" required>
+                <div>
+                    <label class="text-white text-sm font-medium block mb-2">To Date</label>
+                    <input type="date" name="to" required
+                        class="w-full h-10 px-3 bg-background-dark border border-border-dark rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; background-color: #0071e3; color: white;">Start Sync</button>
+                <button type="submit"
+                    class="w-full h-10 bg-primary hover:bg-primary-hover text-background-dark font-bold rounded-lg transition-colors shadow-glow">
+                    Start Sync
+                </button>
             </form>
         </div>
     </div>
@@ -235,8 +483,9 @@
         let myChart = null;
 
         function openSyncModal() {
-            document.getElementById('syncModal').style.display = 'block';
-            // Set default dates (last 30 days)
+            const modal = document.getElementById('syncModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             const today = new Date().toISOString().split('T')[0];
             const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             document.querySelector('input[name="to"]').value = today;
@@ -244,13 +493,9 @@
         }
 
         function closeSyncModal() {
-            document.getElementById('syncModal').style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('syncModal')) {
-                closeSyncModal();
-            }
+            const modal = document.getElementById('syncModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         async function handleCustomSync(e) {
@@ -258,12 +503,12 @@
             const form = e.target;
             const from = form.from.value;
             const to = form.to.value;
-            
             try {
                 const res = await fetch(`/admin/sync/activities?from=${from}&to=${to}`, { method: 'POST' });
                 const data = await res.json();
                 alert(data.message);
                 closeSyncModal();
+                window.location.reload();
             } catch (err) {
                 alert('Sync failed: ' + err.message);
             }
@@ -283,24 +528,30 @@
         }
 
         function renderDashboard(data) {
-            document.getElementById('week-dist').innerHTML = `${(data.weeklySummary.totalDistanceM / 1000.0).toFixed(1)} <span class="stat-unit">km</span>`;
+            document.getElementById('week-dist').innerText = (data.weeklySummary.totalDistanceM / 1000.0).toFixed(1);
             document.getElementById('week-count').innerText = `${data.weeklySummary.runCount} runs this week`;
 
             const trendVal = data.trend.changePercent ? (data.trend.changePercent > 0 ? '+' : '') + data.trend.changePercent.toFixed(1) + '%' : '-';
-            const trendEl = document.getElementById('trend-val');
-            trendEl.innerText = trendVal;
-            trendEl.className = 'insight-value ' + (data.trend.trend === 'IMPROVING' ? 'trend-up' : (data.trend.trend === 'DECLINING' ? 'trend-down' : ''));
+            document.getElementById('trend-val').innerText = trendVal;
             document.getElementById('trend-desc').innerText = data.trend.interpretation;
 
             document.getElementById('anomaly-count').innerText = data.anomaliesCount;
 
             const riskEl = document.getElementById('risk-score');
             riskEl.innerText = data.riskScore;
-            riskEl.className = 'insight-value ' + `risk-${data.riskLevel.toLowerCase()}`;
-            document.getElementById('risk-level').innerText = `${data.riskLevel} Risk`;
+
+            const riskBadge = document.getElementById('risk-badge');
+            const riskLevel = document.getElementById('risk-level');
+            riskLevel.innerText = `${data.riskLevel} Risk`;
+
+            if (data.riskLevel === 'HIGH') {
+                riskBadge.className = 'flex items-center gap-1 mt-2 bg-red-500/10 w-fit px-2 py-1 rounded text-red-400';
+            } else if (data.riskLevel === 'MEDIUM') {
+                riskBadge.className = 'flex items-center gap-1 mt-2 bg-yellow-500/10 w-fit px-2 py-1 rounded text-yellow-400';
+            }
 
             if (data.trend.dataPoints && data.trend.dataPoints.length > 0) {
-                renderSparkline('trendChart', data.trend.dataPoints.map(p => p.value), '#2196f3');
+                renderSparkline('trendChart', data.trend.dataPoints.map(p => p.value), '#FFB300');
             }
         }
 
@@ -328,29 +579,30 @@
             });
         }
 
-        async function loadActivity(id, element) {
-            // Highlight list item
-            document.querySelectorAll('.activity-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        function closeDetail() {
+            document.getElementById('empty-view').style.display = 'flex';
+            document.getElementById('detail-view').style.display = 'none';
+            document.querySelectorAll('.activity-item').forEach(el => el.classList.remove('border-primary'));
+        }
 
-            // Switch view
+        async function loadActivity(id, element) {
+            document.querySelectorAll('.activity-item').forEach(el => el.classList.remove('border-primary'));
+            if (element) element.classList.add('border-primary');
+
             document.getElementById('empty-view').style.display = 'none';
-            document.getElementById('detail-view').style.display = 'block';
+            document.getElementById('detail-view').style.display = 'flex';
 
             try {
-                // Fetch detail
                 const detailRes = await fetch(`/api/activities/${id}`);
                 const detail = await detailRes.json();
                 renderDetail(detail);
 
-                // Fetch streams
                 const streamsRes = await fetch(`/api/activities/${id}/streams`);
                 if (streamsRes.ok) {
                     const streams = await streamsRes.json();
                     renderChart(streams);
                 } else {
-                    if(myChart) myChart.destroy();
-                    // Handle no streams case
+                    if (myChart) myChart.destroy();
                 }
             } catch (e) {
                 console.error(e);
@@ -361,11 +613,11 @@
         function renderDetail(d) {
             document.getElementById('detail-title').innerText = `${d.date} • ${d.startTime}`;
             document.getElementById('detail-dist').innerText = (d.distanceM / 1000.0).toFixed(2);
-            
+
             const min = Math.floor(d.movingTimeS / 60);
             const sec = d.movingTimeS % 60;
             document.getElementById('detail-time').innerText = `${min}:${sec.toString().padStart(2, '0')}`;
-            
+
             if (d.avgPaceSecPerKm) {
                 const pMin = Math.floor(d.avgPaceSecPerKm / 60);
                 const pSec = d.avgPaceSecPerKm % 60;
@@ -373,7 +625,7 @@
             } else {
                 document.getElementById('detail-pace').innerText = "-";
             }
-            
+
             document.getElementById('detail-hr').innerText = d.avgHr || "-";
         }
 
@@ -381,17 +633,10 @@
             const ctx = document.getElementById('activityChart').getContext('2d');
             if (myChart) myChart.destroy();
 
-            // Strava streams usually have 'distance', 'heartrate', 'velocity_smooth'
-            // We need to sync them. Assuming they have same length for simplicity or use index.
-            // Using distance as X axis is better.
-            
             const distData = streams.distance?.data || [];
             const hrData = streams.heartrate?.data || [];
-            // Velocity to Pace (min/km)
-            const paceData = (streams.velocity_smooth?.data || []).map(v => v > 0 ? (1000/v)/60 : null);
-
-            // X axis: distance in km
-            const labels = distData.map(d => (d/1000).toFixed(1));
+            const paceData = (streams.velocity_smooth?.data || []).map(v => v > 0 ? (1000 / v) / 60 : null);
+            const labels = distData.map(d => (d / 1000).toFixed(1));
 
             myChart = new Chart(ctx, {
                 type: 'line',
@@ -410,35 +655,42 @@
                         {
                             label: 'Pace (min/km)',
                             data: paceData,
-                            borderColor: '#2196f3',
-                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            borderColor: '#FFB300',
+                            backgroundColor: 'rgba(255, 179, 0, 0.1)',
                             yAxisID: 'y1',
                             tension: 0.4,
                             pointRadius: 0,
-                            spanGaps: true // ignore nulls
+                            spanGaps: true
                         }
                     ]
                 },
                 options: {
                     responsive: true,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#94a3b8' }
+                        }
                     },
                     scales: {
-                        x: { display: false }, // Hide x labels for cleaner look
+                        x: { display: false },
                         y: {
                             type: 'linear',
                             display: true,
                             position: 'left',
-                            title: { display: true, text: 'BPM' }
+                            title: { display: true, text: 'BPM', color: '#94a3b8' },
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         },
                         y1: {
                             type: 'linear',
                             display: true,
                             position: 'right',
-                            reverse: true, // Lower pace is faster (higher on graph)
-                            title: { display: true, text: 'Pace (min/km)' },
+                            reverse: true,
+                            title: { display: true, text: 'Pace', color: '#94a3b8' },
+                            ticks: { color: '#94a3b8' },
                             grid: { drawOnChartArea: false }
                         }
                     }
@@ -446,7 +698,6 @@
             });
         }
 
-        // --- Existing Auth/Token Functions ---
         async function connectStrava() {
             try {
                 const response = await fetch('/oauth/strava/authorize');
@@ -458,7 +709,7 @@
         async function createToken() {
             const name = prompt("Token Name:");
             if (!name) return;
-            await fetch('/api/tokens', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({name}) });
+            await fetch('/api/tokens', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
             window.location.reload();
         }
 
@@ -469,4 +720,5 @@
         }
     </script>
 </body>
+
 </html>
