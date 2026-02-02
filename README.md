@@ -1,6 +1,6 @@
 # Running Pacer
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/hansu/running-pacer)
+[![Build Status](https://img.shields.io/badge/build-unknown-lightgrey)](https://github.com/Hsooooo/running-pacer)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.1-brightgreen)](https://spring.io/projects/spring-boot)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-purple)](https://kotlinlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -72,7 +72,7 @@ Running Pacer는 사용자의 Strava 러닝 데이터와 AI 기반 분석 도구
 
 1. **저장소 클론:**
    ```bash
-   git clone https://github.com/hansu/running-pacer.git
+   git clone https://github.com/Hsooooo/running-pacer.git
    cd running-pacer
    ```
 
